@@ -1,3 +1,5 @@
+.. _mh5_hardware_package:
+
 ``mh5_hardware`` package
 ========================
 
