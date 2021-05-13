@@ -52,8 +52,9 @@
   <depend>sensor_msgs</depend>
 
   <buildtool_depend>catkin</buildtool_depend>
+  <build_depend>python3-newt</build_depend>
 
-
+  <exec_depend>python3-newt</exec_depend>
 
   <!-- The export tag contains other, unspecified, tags -->
   <export>
