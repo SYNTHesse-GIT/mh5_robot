@@ -2,7 +2,7 @@
 #include <realtime_tools/realtime_buffer.h>
 #include <controller_interface/controller.h>
 #include <mh5_hardware/active_joint_interface.hpp>
-#include "mh5_controllers/ActivateJoint.h"
+#include <mh5_msgs/ActivateJoint.h>
 
 #pragma once
 
@@ -101,7 +101,7 @@ private:
      * The service callbacks only store "true" or "false" in this buffer
      * depending on the command processed.
      */
-    realtime_tools::RealtimeBuffer<ActivateJoint::Request> torque_commands_buffer_;
+    realtime_tools::RealtimeBuffer<mh5_msgs::ActivateJoint::Request> torque_commands_buffer_;
 
     /**
      * @brief Holds reboot commands to be processed during the 
@@ -109,7 +109,7 @@ private:
      * The service callbacks only store "true" or "false" in this buffer
      * depending on the command processed.
      */
-    realtime_tools::RealtimeBuffer<ActivateJoint::Request> reboot_commands_buffer_;
+    realtime_tools::RealtimeBuffer<mh5_msgs::ActivateJoint::Request> reboot_commands_buffer_;
 
     /**
      * @brief ROS Service that responds to the "switch_torque" calls.
@@ -129,7 +129,7 @@ private:
      * @param res the service response; if things are successful + detailed message
      * @return true always
      */
-    bool torqueCB(mh5_controllers::ActivateJoint::Request &req, mh5_controllers::ActivateJoint::Response &res);
+    bool torqueCB(mh5_msgs::ActivateJoint::Request &req, mh5_msgs::ActivateJoint::Response &res);
 
    /**
      * @brief Callback for processing "reboot" calls. Checks if the requested
@@ -139,7 +139,7 @@ private:
      * @param res the service response; if things are successful + detailed message
      * @return true always
      */
-    bool rebootCB(mh5_controllers::ActivateJoint::Request &req, mh5_controllers::ActivateJoint::Response &res);
+    bool rebootCB(mh5_msgs::ActivateJoint::Request &req, mh5_msgs::ActivateJoint::Response &res);
 };
 
 } // namespace

@@ -7,19 +7,19 @@ find_package(catkin REQUIRED COMPONENTS
   combined_robot_hw
   joint_trajectory_controller
   forward_command_controller
-  dynamixel_sdk
   pluginlib
   mh5_hardware
+  mh5_msgs
   diagnostic_msgs
   std_srvs
   std_msgs
   message_generation
 )
 
-add_service_files(
-  FILES
-  ActivateJoint.srv
-)
+#add_service_files(
+#  FILES
+#  ActivateJoint.srv
+#)
 
 generate_messages(
   DEPENDENCIES
@@ -31,9 +31,9 @@ catkin_package(
   CATKIN_DEPENDS controller_manager 
                  hardware_interface
                  combined_robot_hw
-                 dynamixel_sdk
                  joint_trajectory_controller
                  mh5_hardware
+                 mh5_msgs
                  std_msgs 
                  message_runtime
 )

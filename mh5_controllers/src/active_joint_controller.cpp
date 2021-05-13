@@ -1,6 +1,6 @@
 #include <pluginlib/class_list_macros.hpp>
 #include "mh5_controllers/active_joint_controller.hpp"
-#include "mh5_controllers/ActivateJoint.h"
+// #include "mh5_controllers/ActivateJoint.h"
 
 namespace mh5_controllers
 {
@@ -60,7 +60,7 @@ bool ActiveJointController::init(mh5_hardware::ActiveJointInterface* hw, ros::No
 }
 
 
-bool ActiveJointController::torqueCB(mh5_controllers::ActivateJoint::Request &req, mh5_controllers::ActivateJoint::Response &res)
+bool ActiveJointController::torqueCB(mh5_msgs::ActivateJoint::Request &req, mh5_msgs::ActivateJoint::Response &res)
 {
     if (joints_.count(req.name))  {
         torque_commands_buffer_.writeFromNonRT(req);
@@ -88,7 +88,7 @@ bool ActiveJointController::torqueCB(mh5_controllers::ActivateJoint::Request &re
 }
 
 
-bool ActiveJointController::rebootCB(mh5_controllers::ActivateJoint::Request &req, mh5_controllers::ActivateJoint::Response &res)
+bool ActiveJointController::rebootCB(mh5_msgs::ActivateJoint::Request &req, mh5_msgs::ActivateJoint::Response &res)
 {
     if (joints_.count(req.name))  {
         reboot_commands_buffer_.writeFromNonRT(req);
@@ -119,7 +119,7 @@ bool ActiveJointController::rebootCB(mh5_controllers::ActivateJoint::Request &re
 
 void ActiveJointController::update(const ros::Time& /*time*/, const ros::Duration& /*period*/)
 {
-    ActivateJoint::Request command = *torque_commands_buffer_.readFromRT();
+    mh5_msgs::ActivateJoint::Request command = *torque_commands_buffer_.readFromRT();
 
     if (command.name != "")
     {
@@ -127,7 +127,7 @@ void ActiveJointController::update(const ros::Time& /*time*/, const ros::Duratio
             for (auto & handle : joints_[command.name])
                 handle.setCommand(command.state);
             // we need to rest it because it would be latched
-            torque_commands_buffer_.initRT(ActivateJoint::Request());
+            torque_commands_buffer_.initRT(mh5_msgs::ActivateJoint::Request());
             return;
         }
 
@@ -137,7 +137,7 @@ void ActiveJointController::update(const ros::Time& /*time*/, const ros::Duratio
                 {
                     handle.setCommand(command.state);
                     // we need to rest it because it would be latched
-                    torque_commands_buffer_.initRT(ActivateJoint::Request());
+                    torque_commands_buffer_.initRT(mh5_msgs::ActivateJoint::Request());
                     return;
                 }
     }
@@ -150,7 +150,7 @@ void ActiveJointController::update(const ros::Time& /*time*/, const ros::Duratio
             for (auto & handle : joints_[command.name])
                 handle.setReboot(command.state);
             // we need to rest it because it would be latched
-            reboot_commands_buffer_.initRT(ActivateJoint::Request());
+            reboot_commands_buffer_.initRT(mh5_msgs::ActivateJoint::Request());
             return;
         }
 
@@ -160,7 +160,7 @@ void ActiveJointController::update(const ros::Time& /*time*/, const ros::Duratio
                 {
                     handle.setReboot(command.state);
                     // we need to rest it because it would be latched
-                    reboot_commands_buffer_.initRT(ActivateJoint::Request());
+                    reboot_commands_buffer_.initRT(mh5_msgs::ActivateJoint::Request());
                     return;
                 }
     }
