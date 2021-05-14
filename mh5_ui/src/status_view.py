@@ -8,12 +8,40 @@ from view_ui import View, NameValueScale, NameStatValue
 from snack import Grid, Label
 
 
-# , , SnackScreen, , Listbox, Scale, , \
-#     GridForm, Textbox              , ButtonChoiceWindow
-
 class RobotStatusView(View):
+    """View that presents the overview of robot's hardware (excluding servos).
 
+    This version includes the following information:
+    - battery voltage
+    - voltage for 5V railing
+    - voltage for 3.3V railing
+    - battery statistics (on battery for..., battery remaining...); these are claculated
+      in the code here and are based on monitoring the discharge of the battery and
+      the last time the battery was changed
+    - processor temperature
+    - fan status (on, off)
+    - CPU frequency
+    - CPU governor
+    - CPU load (1 minute, 5 minutes, 15 minutes average)
+    - memory used (in %)
+    - WiFi AP status (IP address if on)
+    - WiFi dongle status (IP address is connected to infrastructure)
+    - LAN status (IP address is connected to infrastructure)
+    """
     def __init__(self, screen, timer, title='Robot Status'):
+        """Constructor for the status view.
+
+        Initializes the battery statistics.
+
+        Parameters
+        ----------
+        screen : snack.SnackScreen
+            The screen where the display will be made.
+        timer : int
+            [description]
+        title : str, optional
+            Title to be printed for the view, by default 'Robot Status'
+        """
         super().__init__(screen, timer, title)
         self.batt_last_change = None
         self.batt_last_change_value = None
