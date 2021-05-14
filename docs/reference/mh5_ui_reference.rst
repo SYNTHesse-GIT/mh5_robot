@@ -7,9 +7,8 @@ Main classes
 class MainUI
 ^^^^^^^^^^^^
 
-.. autoclass:: mh5_ui.MainUI
+.. autoclass:: main_ui.MainUI
     :members:
-    :protected-members:
     :private-members:
     :undoc-members:
 
@@ -20,26 +19,23 @@ Supporting classes
 class View
 ^^^^^^^^^^
 
-.. autoclass:: mh5_ui.View
+.. autoclass:: view_ui.View
     :members:
-    :protected-members:
     :private-members:
     :undoc-members:
 
 class NameValueScale
 ^^^^^^^^^^^^^^^^^^^^
 
-.. autoclass:: mh5_ui.NameValueScale
+.. autoclass:: view_ui.NameValueScale
     :members:
-    :protected-members:
     :private-members:
     :undoc-members:
 
 class NameStatValue
 ^^^^^^^^^^^^^^^^^^^
 
-.. autoclass:: mh5_ui.NameStatValue
+.. autoclass:: view_ui.NameStatValue
     :members:
-    :protected-members:
     :private-members:
     :undoc-members:

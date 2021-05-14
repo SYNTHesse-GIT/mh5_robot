@@ -13,17 +13,33 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+from typing import Dict
 from snack import SnackScreen, Widget
 
 
 class MainUI():
     """Main UI class that handles the views and switches between them.
 
-    The MainUI setups a SnackScreen, determines the size of the avaialable
+    The MainUI setups a SnackScreen, determines the size of the available
     screen and handles the main display loop that processes the hotkeys.
     An additional hot-key 'q' is provided to quit the loop and close the
     display.
     """
+    screen: SnackScreen
+    """The main screen of the UI. It is a SnackScreen."""
+    w: int
+    """The width of the screen."""
+    h: int
+    """The height of the screen."""
+    views: Dict[str, Widget]
+    """The views in the UI. You can use :meth:`add_view()` to add them to this
+    dictionary."""
+    current_view: Widget
+    """The current view being shown."""
+    done: bool
+    """Controls the display loop. Will be initialized to `False` and will
+    only be set to `True` by pressing the ``q`` hot-key."""
+
     def __init__(self) -> None:
         """Initializes the UI. Allocates the SnackScreen, determines the
         width and height of the screen and initializes the views.
@@ -48,20 +64,21 @@ class MainUI():
         ----------
         view : Widget or subclass
             The view (page) to be added. The view must be fully constructed
-            and run() must be possible to be executed on that object.
+            and :meth:`view_ui.View.run()` must be possible to be executed
+            on that object.
         hot_key : str
             The key associated with the view. The main loop will process
             keys and if they match one of these it will handle the switch
             to that particular view.
         default_view : bool, optional
-            Marks this view as the default view whihc means the MainUI will
-            use this to sart displaying the interface when executing run()
+            Marks this view as the default view which means the MainUI will
+            use this to start displaying the interface when executing :meth:`run()`
             for the first time. When you add views to the MainUI the last
             one that uses the ``default_view`` will overwrite the other ones
             and that will be the one to be used. If no view is defined as
-            ``default_view`` the MainUI will will the first item in the list
-            of hot-keys. Becuase the way the dictionaries work in Python
-            this might not be the first view added. By default False
+            ``default_view`` the MainUI will use the first item in the list
+            of hot-keys. Because of the way the dictionaries work in Python
+            this might not be the first view added. By default `False`
         """
         self.views[hot_key] = view
         if default_view:
@@ -70,15 +87,16 @@ class MainUI():
     def change_view(self, hotkey: str) -> None:
         """Changes a view to the one specified by the hot-key provided.
 
-        The method will ask the present view to finish() then will popWindow()
-        from the screen. It will asign the view represented in the dictionary
-        by the ``hotkey`` to the ``current_view``, it will ask to setup(),
+        The method will ask the present view to :meth:`view_ui.View.finish()`
+        then will `popWindow()` from the screen. It will assign the view
+        represented in the dictionary by the ``hotkey`` to the 
+        ``current_view``, it will ask to :meth:`view_ui.View.setup()`,
         and will setup the hot-keys from that view.
 
         Parameters
         ----------
         hotkey : str
-            The hot-key indentifying that view.
+            The hot-key identifying that view.
         """
         if self.current_view:
             self.current_view.finish()
@@ -91,10 +109,10 @@ class MainUI():
 
     def run(self) -> None:
         """Runs the main loop of the UI. It will activate the ``default_view``
-        and then will execute a run() for that view (which for shack means
-        to wait for a key press) then handle the hotkeys by switching the
-        views if they match the ones associated with the views or finish the
-        loop if 'q' was pressed.
+        and then will execute a :meth:`view_ui.View.run()` for that view
+        (which for shack means to wait for a key press) then handle the 
+        hotkeys by switching the views if they match the ones associated 
+        with the views or finish the loop if 'q' was pressed.
         
         .. Note:
 

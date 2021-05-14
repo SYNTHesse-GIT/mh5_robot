@@ -19,26 +19,42 @@ from snack import GridForm, Textbox, Scale, SnackScreen, Widget
 
 class View():
     """Base class for a view."""
+    screen: SnackScreen
+    """The main screen where the view will be posted."""
+    timer: int
+    """The refresh timer (in milliseconds) that the view will use to update
+    the content displayed."""
+    title: str
+    """The title of the view. It is diplayed at the top of the screen."""
+    grid: GridForm
+    """The view places all the elements into a `snack.GridForm` object of size
+    1 x 1. We use a GridForm because this is handling hotkeys and allows to
+    define an automated timer to trigger the refresh of the content."""
+    content: Widget
+    """Is the actual content of the view that is normally produced by invoking
+    :meth:`create_content()`."""
+
     def __init__(self, screen: SnackScreen,
                        timer: int,
                        title: str) -> None:
         """Initializes a new view.
 
-        A view uses a snack.GridForm as a canvas, that is pinned on the screen
+        A view uses a `snack.GridForm` as a canvas, that is pinned on the screen
         provided and displays a title.
 
-        The constructor only stores the ``screen``, ``timer`` and ``title``
-        in the internal variables. You need to specifically call setup() to
-        construct the view. setup() will call create_content() that normally
-        needs to be overridden by subclasses to present a specific content.
+        The constructor only stores the `screen`, `timer` and `title`
+        in the internal variables. You need to specifically call :meth:`setup()`
+        to construct the view. :meth:`setup()` will call :meth:`create_content()`
+        that normally needs to be overridden by subclasses to present a
+        specific content.
 
         Parameters
         ----------
         screen : snack.SnackScreen
             The screen where the view will be positioned.
         timer : int
-            Refresh time for view in miliseconds. This will trigger the
-            update_content().
+            Refresh time for view in milliseconds. This will trigger the
+            :meth:`update_content()`.
         title : str
             Title to be presented on the top of the view.
         """
@@ -65,7 +81,7 @@ class View():
             self.grid.setTimer(self.timer)
 
     def create_content(self) -> Widget:
-        """Should be impelemented in subclasses to produce the desired
+        """Should be implemented in subclasses to produce the desired
         view output.
         
         Returns
@@ -88,8 +104,8 @@ class View():
 
     def update_content(self) -> None:
         """Handles updates to the content of the view. Normally these are
-        triggered by the elpsed timer set up by the ``timer`` property. Should
-        be implemented in the subclass according to the desired behaviour."""
+        triggered by the elapsed timer set up by the `timer` property. Should
+        be implemented in the subclass according to the desired behavior."""
         pass
 
     def process_hotkey(self, key: str) -> None:
@@ -103,13 +119,13 @@ class View():
         pass
 
     def run(self) -> str:
-        """Performs a ``run`` of the grid.
+        """Performs a `run()` of the grid.
         
-        First calls the update_content() to trigger updates to the interface 
-        and refresh() on the screen object. After that it runs the run() of
-        the grid object follwied by process_key() method to
+        First calls the :meth:`update_content()` to trigger updates to the interface 
+        and `refresh()` on the screen object. After that it runs the `run()` of
+        the grid object followed by :meth:`process_key()` method to
         process the hotkey pressed (if any) after which it returns the hot key
-        to the caller program (tipically the MainUI) so that the loop there
+        to the caller program (typically the MainUI) so that the loop there
         can process it's own hot keys.
 
         Returns
@@ -124,7 +140,7 @@ class View():
         return key
 
     def finish(self) -> None:
-        """Provides a way for thge view to clear resources before being
+        """Provides a way for the view to clear resources before being
         switched from. For instance views that are displaying information
         from ROS topics have the chance to unsubscribe from the topics here
         to save resources.
@@ -136,6 +152,22 @@ class NameValueScale():
     """A display element that includes a name for the object, a value (+ unit
     of measure if provided) and a Scale (a horizontal bar graph).
     """
+    unit: str
+    """String for units of measure."""
+    name: Textbox
+    """A `snack.TextBox` that will display the name part of the element."""
+    value: Textbox
+    """A `snack.TextBox` that will display the value part of the element."""
+    min_val: float
+    """The minimum value expected for the element to display."""
+    max_val: float
+    """The maximum value expected for the element to display."""
+    range_val: float
+    """The range of the value expected to be displayed. Calculated as 
+    `max-val` - `min_val`."""
+    scale: Scale
+    """The `snack.Scale` that will display the bar graph of the item."""
+
     def __init__(self, name: str, 
                        unit: str, 
                        grid: GridForm, 
@@ -155,7 +187,7 @@ class NameValueScale():
         grid : GridForm
             The form where the elements are added to
         row : int
-            The row number in the form where the elements will be poistioned.
+            The row number in the form where the elements will be positioned.
             All elements are on the same row.
         widths : List[int]
             A list of width for the elements (name, value, scale)
@@ -195,9 +227,18 @@ class NameValueScale():
 
 
 class NameStatValue():
-    """A display element that includes a name for the object, a staus and
+    """A display element that includes a name for the object, a status and
     an additional (optional can be '') text.
     """
+    unit: str
+    """String for units of measure."""
+    name: Textbox
+    """A `snack.TextBox` that will display the name part of the element."""
+    stat: Textbox
+    """A `snack.TextBox` that will display the status part of the element."""
+    value: Textbox
+    """A `snack.TextBox` that will display the value part of the element."""
+
     def __init__(self, name: str,
                        unit: str,
                        grid: GridForm,
@@ -215,7 +256,7 @@ class NameStatValue():
         grid : GridForm
             [description]
         row : int
-            The row number in the form where the elements will be poistioned.
+            The row number in the form where the elements will be positioned.
             All elements are on the same row.
         widths : List[int]
             A list of width for the elements (name, status, value)
@@ -237,7 +278,7 @@ class NameStatValue():
         stat : str
             A string showing the status of the element.
         value : str, optional
-            An additional valuee to be shown after the status, by default ''.
+            An additional value to be shown after the status, by default ''.
         """
         self.stat.setText(f'{stat:>4s}{self.unit}')
         self.value.setText(value)
