@@ -1,16 +1,81 @@
+# Copyright (C) 2020  Alex Sonea
 
-from sensor_msgs.msg import BatteryState, JointState, Temperature
-from snack import Listbox
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+from typing import List, Dict
 import rospy
-
-
-# Grid, GridForm, Label, , Scale, , \
-#   SnackScreen                Textbox, ButtonChoiceWindow
+from sensor_msgs.msg import BatteryState, JointState, Temperature
+from snack import Listbox, SnackScreen
 from view_ui import View
 
-class JointView(View):
 
-    def __init__(self, screen, timer, title='Joint State'):
+class JointView(View):
+    """View that displays the current state of the joints showing: position,
+    velocity and effort as well as temperature and voltage. Position and 
+    velocity can be shown in degrees or in radians.
+
+    The view shows the joints in a ``snack.Listbox`` that contains one joint
+    per row, followed by the information for that joint. The hot-keys "d", "r"
+    and "t" are registered with the MainUI to handle the switch between the
+    display modes: "d" displays the position, velocity in degrees and load in
+    Nm, "r" displays position, velocity in radians and load in Nm while "t"
+    displays the temperature in Celsius degrees and voltage in Volts.
+
+    The view subscribes to:
+    
+    - ``joint_states`` to retreive joint position, velocity and load
+    - ``temperature`` to retreive the joint temperature
+    - ``voltage`` to retrieve the joint voltage
+
+    When the view is dismissed (switched to another view) it removes the
+    subscriptions to reduce the load on the ROS communication. 
+    """
+    joint_names: List[str]
+    """Ordered list of joints. The information will be listed in the view
+    in the same order that the joints are declared here."""
+    joint_values: Dict[str, Dict[str, float]]
+    """Dictionary that contains the values for each joint. The values are held
+    as a dictionary with keys: "pos", "vel", "eff", "temp" and "volt". Values
+    are updated by the callbacks from the subscribers and used by the 
+    :meth:`update_content`."""
+    mode: str
+    """The display variant. Could be "r" for radian display, "d" degree display
+    or "t" for temp/voltage display as explained in the class defintion."""
+    js_subscr: rospy.Subscriber
+    """Subscriber to ``joint_stateas``."""
+    jt_subscr: rospy.Subscriber
+    """Subscriber to ``temperature``."""
+    jv_subscr: rospy.Subscriber
+    """Subscriber to ``voltage``."""
+
+    def __init__(self, screen: SnackScreen,
+                       timer: int,
+                       title: str = 'Joint State') -> None:
+        """Initializes the screen.
+
+        Calls the inherited constructor from :class:`view_ui.View`, then sets
+        up the ``joint_names``. It also initializes the display mode to "r".
+
+        Parameters
+        ----------
+        screen : SnackScreen
+            The screen where the content will be bound.
+        timer : int
+            Refresh time in milliseconds for the content.
+        title : str, optional
+            Screen title, by default 'Joint State'
+        """
         super().__init__(screen, timer, title)
 
         self.joint_names = [
@@ -22,7 +87,20 @@ class JointView(View):
         self.joint_values = {}
         self.mode = 'r'         # radians
 
-    def create_content(self):
+    def create_content(self) -> Listbox:
+        """Prepares the content for the view, in this case a ``shack.Listbox``
+        with 22 rows and 36 characts wide.
+
+        The method also creates the subscribers to the topics that provide
+        information for the view: ``joint_states`` for the position, velocity
+        and load, ``temperature`` for the joint temperatures and ``voltage``
+        for the joint voltages.
+
+        Returns
+        -------
+        Listbox:
+            The content of the view as a ``snack.Listbox``.
+        """
         self.js_subsr = rospy.Subscriber('joint_states', JointState, self.joint_values_call_back)
         self.jt_subsr = rospy.Subscriber('temperature', Temperature, self.joint_temperature_call_back)
         self.jv_subsr = rospy.Subscriber('voltage', BatteryState, self.joint_voltage_call_back)
@@ -32,7 +110,14 @@ class JointView(View):
             lb.append(f'Text for position {pos:2d}', pos)
         return lb
 
-    def update_content(self):
+    def update_content(self) -> None:
+        """Updates the view content from the information that is storred in 
+        ``joint_values`` by each of the subscribers' callback functions.
+
+        The update depends on the ``mode``.
+
+        The method is called by the timer in the :class:`view_ui.View``.
+        """
         for index, joint_name in enumerate(self.joint_names):
             values = self.joint_values.get(joint_name, {})
 
@@ -56,14 +141,41 @@ class JointView(View):
                 self.content.replace(f'{joint_name:12s} {pos:5.2f}   {vel:5.2f}   {eff:5.2f}', index)
 
     @property
-    def hotkeys(self):
+    def hotkeys(self) -> List[str]:
+        """Notifies the MainUI the hotkeys this view implements.
+
+        Returns
+        -------
+        List[str]
+            Returns ['d', 'r', 't']
+        """
         return ['d', 'r', 't']
 
-    def process_hotkey(self, key):
+    def process_hotkey(self, key:str) -> None:
+        """Handles a hotkey. Because the hotkeys handled have the same coding
+        as the display mode, it simply stores the hotkey to the ``mode``
+        attribute and later the :meth:`update_content` will reflect that
+        request.
+
+        Parameters
+        ----------
+        key : str
+            The hotkey pressed by the user.
+        """
         if key in self.hotkeys:
             self.mode = key
 
-    def joint_values_call_back(self, msg):
+    def joint_values_call_back(self, msg: JointState) -> None:
+        """Callback for handling ``joint_states`` subscription. Uses the
+        values from the message by comparing the name of the joint
+        and storing the data provided into "pos", "vel" and "eff" keys of the
+        ``joint_values`` for that joint.
+
+        Parameters
+        ----------
+        msg : JointState
+            ROS message with the joint states.
+        """
         for index, name in enumerate(msg.name):
             if name not in self.joint_values:
                 self.joint_values[name] = {}
@@ -71,19 +183,43 @@ class JointView(View):
             self.joint_values[name]['vel'] = msg.velocity[index]
             self.joint_values[name]['eff'] = msg.effort[index]
 
-    def joint_temperature_call_back(self, msg):
+    def joint_temperature_call_back(self, msg: Temperature) -> None:
+        """Callback for handling ``temperature`` subscription. Uses the
+        values from the message by comparing the name of the joint
+        and storing the data provided into "temp" key of the
+        ``joint_values`` for that joint.
+
+        Parameters
+        ----------
+        msg : Temperature
+            ROS message with the joint temperatures.
+        """
         name = msg.header.frame_id
         if name not in self.joint_values:
             self.joint_values[name] = {}
         self.joint_values[name]['temp'] = msg.temperature
 
-    def joint_voltage_call_back(self, msg):
+    def joint_voltage_call_back(self, msg: BatteryState) -> None:
+        """Callback for handling ``voltage`` subscription. Uses the
+        values from the message by comparing the name of the joint
+        and storing the data provided into "volt" key of the
+        ``joint_values`` for that joint.
+
+        Parameters
+        ----------
+        msg : BatteryState
+            ROS message with the joint voltage.
+        """
         name = msg.header.frame_id
         if name not in self.joint_values:
             self.joint_values[name] = {}
         self.joint_values[name]['volt'] = msg.voltage
 
-    def finish(self):
+    def finish(self) -> None:
+        """Handles the request to switch away from the view. To preserve
+        resource it deletes the subscriptions to the ``joint_states``,
+        ``temperature`` and ``voltage`` topics.
+        """
         # self.js_subsr.unregister()
         # self.jt_subsr.unregister()
         # self.jv_subsr.unregister()

@@ -1,12 +1,25 @@
+# Copyright (C) 2020  Alex Sonea
+
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
 import subprocess
 import time
 import psutil
 import rospy
 
-from view_ui import View, NameValueScale, NameStatValue
-
 from snack import Grid, Label
-
+from view_ui import View, NameValueScale, NameStatValue, SnackScreen
 
 class RobotStatusView(View):
     """View that presents the overview of robot's hardware (excluding servos).
@@ -28,7 +41,22 @@ class RobotStatusView(View):
     - WiFi dongle status (IP address is connected to infrastructure)
     - LAN status (IP address is connected to infrastructure)
     """
-    def __init__(self, screen, timer, title='Robot Status'):
+    batt_last_change: float
+    """Keeps the time that the battery was changed last."""
+    batt_last_change_value: float
+    """The last value for the battery voltage when battery was replaced."""
+    batt_last_value: float
+    """Last read battery voltage."""
+    batt_last_estimate: float
+    """Time when the latest estimate about battery life was done."""
+    on_batt_str: str
+    """String showing hh:mm time on battery from last change (or start)."""
+    rem_batt_str: str
+    """String showing hh:mm time remaining on battery based on last estimate."""
+
+    def __init__(self, screen:SnackScreen, 
+                       timer: int,
+                       title: str = 'Robot Status'):
         """Constructor for the status view.
 
         Initializes the battery statistics.
@@ -50,7 +78,15 @@ class RobotStatusView(View):
         self.on_batt_str = '0:00'
         self.rem_batt_str = 'Calc'
 
-    def create_content(self):
+    def create_content(self) -> Grid:
+        """Creates a snack.Grid that contains the items to be displayed and
+        initializes the values for these elements.
+
+        Returns
+        -------
+        snack.Grid
+            The initialized Grid to be used by MainUI.
+        """
         grid = Grid(3, 19)
         w = [16, 6, 14]         # widths for columns
         row = 0                 # current row
@@ -134,7 +170,20 @@ class RobotStatusView(View):
         # grid.setField(Label(''), 0, row)
         return grid
 
-    def shell_cmd(self, command):
+    def shell_cmd(self, command:str) -> str:
+        """Convenience function for running a Shell command an returning
+        the result.
+
+        Parameters
+        ----------
+        command : str
+            Command to be execcuted (ex. ``ifconfig wlan0 | grep "inet "``).
+
+        Returns
+        -------
+        str
+            The result of running the command or empty string is errors occurred.
+        """
         comm = subprocess.run(command, shell=True, stdout=subprocess.PIPE,
                               encoding='utf-8')
         if comm.returncode == 0:
@@ -142,20 +191,61 @@ class RobotStatusView(View):
         else:
             return ''
 
-    def read_sysfs(self, file):
+    def read_sysfs(self, file:str) -> str:
+        """Reads the content of a ``sysfs`` parameter and returns the value
+        stripped.
+
+        The method is provided as a faster alternative to using the 
+        :meth:`shell_cmd`` because no shell will need to be spun.
+
+        Parameters
+        ----------
+        file : str
+            The ``sysfs`` access (ex. ``/sys/class/thermal/thermal_zone0/temp``).
+            Please note that the function does not handle any exceptions, so if
+            the file does not exist or the user does not have authorization to
+            read the value an exception will be raised and needs to be handled
+            by the calling program.
+
+        Returns
+        -------
+        str
+            The result of reading that ``sysfs`` parameter.
+        """
         # try:
         raw = open(file, 'r').read()
         val = raw.strip()
         return val
 
-    def get_interf_status(self, interf):
+    def get_interf_status(self, interf:str) -> tuple(str, str):
+        """Convenience function for getting the status and the IP address
+        of an interface.
+
+        Parameters
+        ----------
+        interf : str
+            The name of the interface (ex. ``wlan0``)
+
+        Returns
+        -------
+        tuple(str, str)
+            Returns the status of the interface in the first string as "On" or
+            "Off" and the IP address in the second string if connected or
+            empty string if not connected.
+        """
         inet_line = self.shell_cmd(f'ifconfig {interf} | grep "inet "')
         if inet_line:
             return 'On', inet_line.split(' ')[1]
         else:
             return 'Off', ''
 
-    def update_content(self):
+    def update_content(self) -> None:
+        """Reads the information for each of the elements in the screen and
+        updates their content.
+
+        This is triggered by the timer that is setup by the :class:`view_ui.View`
+        class.
+        """
         # voltage
         # 5V railing
         raw =  self.read_sysfs("/sys/class/i2c-dev/i2c-1/device/1-0048/iio:device0/in_voltage1_raw")
