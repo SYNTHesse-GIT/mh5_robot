@@ -17,6 +17,7 @@ import subprocess
 import time
 import psutil
 import rospy
+from typing import Tuple
 
 from snack import Grid, Label
 from view_ui import View, NameValueScale, NameStatValue, SnackScreen
@@ -217,7 +218,7 @@ class RobotStatusView(View):
         val = raw.strip()
         return val
 
-    def get_interf_status(self, interf:str) -> tuple(str, str):
+    def get_interf_status(self, interf:str) -> Tuple[str, str]:
         """Convenience function for getting the status and the IP address
         of an interface.
 
