@@ -39,3 +39,23 @@ class NameStatValue
     :members:
     :private-members:
     :undoc-members:
+
+
+Views
+-----
+
+class RobotStatusView
+^^^^^^^^^^^^^^^^^^^^^
+
+.. autoclass:: status_view.RobotStatusView
+    :members:
+    :private-members:
+    :undoc-members:
+
+class JointView
+^^^^^^^^^^^^^^^
+    
+.. autoclass:: joint_view.JointView
+    :members:
+    :private-members:
+    :undoc-members:
