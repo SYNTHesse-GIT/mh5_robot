@@ -7,7 +7,7 @@ using namespace mh5_controllers;
 
 bool CommunicationStatsController::init(mh5_hardware::CommunicationStatsInterface* hw, ros::NodeHandle& root_nh, ros::NodeHandle& controller_nh)
   {
-    // get all joint names from the hardware interface
+    // get all joint loop from the hardware interface
     const std::vector<std::string>& loop_names = hw->getNames();
 
     // get publishing period
@@ -16,8 +16,15 @@ bool CommunicationStatsController::init(mh5_hardware::CommunicationStatsInterfac
       publish_period_ = 30.0;
     }
 
+  // topic name
+    std::string topic_name;
+    if (!controller_nh.getParam("topic", topic_name)){
+      ROS_INFO("[CommunicationStatusController] Parameter 'topic' not set; default to 'communication_statistics'");
+      topic_name = "communication_statistics";
+    }
+
     // realtime publisher
-    realtime_pub_.reset(new realtime_tools::RealtimePublisher<diagnostic_msgs::DiagnosticArray>(root_nh, "diagnostics", 4));
+    realtime_pub_.reset(new realtime_tools::RealtimePublisher<diagnostic_msgs::DiagnosticArray>(root_nh, topic_name, 4));
 
     // get joints and allocate message
     for (auto & loop_name : loop_names)
