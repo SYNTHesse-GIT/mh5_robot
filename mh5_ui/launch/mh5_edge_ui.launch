@@ -4,6 +4,8 @@
     <rosparam file="$(find mh5_ui)/config/menu.yaml" command="load"/>
     <node pkg="mh5_ui" type="mh5_ui_node.py" name="ui" output="screen">
         <param name="rate" value="10" />
+        <param name="joint_states_topic" value="joint_states" />
+        <param name="comm_stat_topic" value="communication_statistics" />
         <param name="torque_service" value="torque_control/switch_torque" />
         <param name="reboot_service" value="torque_control/reboot" />
     </node>

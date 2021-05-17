@@ -1,7 +1,24 @@
-from view_ui import View
-from snack import Listbox
-from diagnostic_msgs.msg import DiagnosticArray
+# Copyright (C) 2020  Alex Sonea
+
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
 import rospy
+from snack import Listbox
+
+from view_ui import View
+from diagnostic_msgs.msg import DiagnosticArray
+
 
 class CommStatusView(View):
 
@@ -16,33 +33,31 @@ class CommStatusView(View):
             # perc = 0.0
             # packs = 0
             # for value in status.values:
-            #     if value.key == 'cum_error_rate_perc':
-            #         perc = float(value.value)
-            #     if value.key == 'cum_packets':
-            #         packs = int(value.value)/1000
             #     if value.key == 'packets':
             #         last_packs = int(value.value)
             #     if value.key == 'errors':
             #         last_errors = int(value.value)
+
+            #     if value.key == 'cum_error_rate_perc':
+            #         perc = float(value.value)
+            #     if value.key == 'total_packets':
+            #         packs = int(value.value)/1000
+
             #     if value.key == 'real_rate':
             #         real_rate = float(value.value)
-            # self.stats[name] = {
-            #     'perc': perc,
-            #     'packs': packs,
-            #     'last_packs': last_packs,
-            #     'last_errors': last_errors,
-            #     'real_rate': 
-            # }
-            keys = [v.key for v in status.values]
-            values = [v.value for v in status.values]
-            self.stats[name] = dict(zip(keys, values))
+            self.stats[name] = {v.key: v.value for v in status.values}
+            # keys = [v.key for v in status.values]
+            # values = [v.value for v in status.values]
+            # self.stats[name] = dict(zip(keys, values))
 
     def create_content(self):
         lb = Listbox(height=18, width=36)
         lb.append('Name                  Packs[k] %Err ', 0)
         for pos in range(1, 18):
             lb.append('', pos)
-        self.comm_subsr = rospy.Subscriber('communication_statistics', DiagnosticArray, self.comms_call_back)
+        
+        topic = rospy.get_param('~comm_stat_topic', 'communication_statistics')
+        self.comm_subsr = rospy.Subscriber(topic, DiagnosticArray, self.comms_call_back)
         return lb
 
     def update_content(self):
@@ -50,8 +65,8 @@ class CommStatusView(View):
             self.content.replace('Name                  Packs[k] %Err ', 0)
             for index, name in enumerate(self.stats):
                 stats = self.stats[name]
-                packs = float(stats.get('cum_packets', '0'))/1000.0
-                perc = float(stats.get('cum_error_rate_perc', '0'))
+                packs = float(stats.get('total_packets', '0'))/1000.0
+                perc = float(stats.get('total_error_rate_perc', '0'))
                 self.content.replace(f'{name[:22]:22s} {packs:7.1f} {perc:4.1f}%', index + 1)
         elif self.mode == 'l':
             self.content.replace('Name                     Packs Errs', 0)

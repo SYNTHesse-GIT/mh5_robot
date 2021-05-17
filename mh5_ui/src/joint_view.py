@@ -101,7 +101,8 @@ class JointView(View):
         Listbox:
             The content of the view as a ``snack.Listbox``.
         """
-        self.js_subsr = rospy.Subscriber('joint_states', JointState, self.joint_values_call_back)
+        topic = rospy.get_param('~joint_states_topic', 'joint_states')
+        self.js_subsr = rospy.Subscriber(topic, JointState, self.joint_values_call_back)
         self.jt_subsr = rospy.Subscriber('temperature', Temperature, self.joint_temperature_call_back)
         self.jv_subsr = rospy.Subscriber('voltage', BatteryState, self.joint_voltage_call_back)
 
