@@ -1,0 +1,59 @@
+mh5_ui:
+
+  menu:
+  
+    main: [
+      { prompt: System, method: do_navigate, params: [system] },
+      { prompt: Robot, method: do_navigate, params: [robot] },
+      { prompt: Actions, method: do_navigate, params: [actions] }
+    ]
+
+    system: [
+      { prompt: Close ROS, method: do_close_ros, params: [] },
+      { prompt: Shutdown robot, method: do_shutdown, params: [] }
+    ]
+
+    robot: [
+      { prompt: Torque enable, method: do_navigate, params: [torque_enable] },
+      { prompt: Torque disable, method: do_navigate, params: [torque_disable] },
+      { prompt: Reboot, method: do_navigate, params: [reboot] }
+    ]
+
+    torque_enable: [
+      { prompt: Torque enable head, method: do_change_torque, params: [True, 'head'] },
+      { prompt: Torque enable left arm, method: do_change_torque, params: [True, 'left_arm'] },
+      { prompt: Torque enable right arm, method: do_change_torque, params: [True, 'right_arm'] },
+      { prompt: Torque enable arms, method: do_change_torque, params: [True, 'arms'] },
+      { prompt: Torque enable left leg, method: do_change_torque, params: [True, 'left_leg'] },
+      { prompt: Torque enable right leg, method: do_change_torque, params: [True, 'right_leg'] },
+      { prompt: Torque enable legs, method: do_change_torque, params: [True, 'legs'] },
+      { prompt: Torque enable all, method: do_change_torque, params: [True, 'all'] }
+    ]
+
+    torque_disable: [
+      { prompt: Torque disable head, method: do_change_torque, params: [False, 'head'] },
+      { prompt: Torque disable left arm, method: do_change_torque, params: [False, 'left_arm'] },
+      { prompt: Torque disable right arm, method: do_change_torque, params: [False, 'right_arm'] },
+      { prompt: Torque disable arms, method: do_change_torque, params: [False, 'arms'] },
+      { prompt: Torque disable left leg, method: do_change_torque, params: [False, 'left_leg'] },
+      { prompt: Torque disable right leg, method: do_change_torque, params: [False, 'right_leg'] },
+      { prompt: Torque disable legs, method: do_change_torque, params: [False, 'legs'] },
+      { prompt: Torque disable all, method: do_change_torque, params: [False, 'all'] }
+    ]
+
+    reboot: [
+      { prompt: Reboot head, method: do_reboot, params: [True, 'head'] },
+      { prompt: Reboot left arm, method: do_reboot, params: [True, 'left_arm'] },
+      { prompt: Reboot right arm, method: do_reboot, params: [True, 'right_arm'] },
+      { prompt: Reboot arms, method: do_reboot, params: [True, 'arms'] },
+      { prompt: Reboot left leg, method: do_reboot, params: [True, 'left_leg'] },
+      { prompt: Reboot right leg, method: do_reboot, params: [True, 'right_leg'] },
+      { prompt: Reboot legs, method: do_reboot, params: [True, 'legs'] },
+      { prompt: Reboot all, method: do_reboot, params: [True, 'all'] }
+    ]
+
+    actions: [
+      { prompt: Stand up, method: do_script, params: [stand] },
+      { prompt: Sit down, method: do_script, params: [sit] }
+    ]
+
