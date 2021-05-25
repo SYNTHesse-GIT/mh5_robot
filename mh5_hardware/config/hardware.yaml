@@ -1,6 +1,6 @@
 robot_hardware:
-  - upper_body
   - lower_body
+  - upper_body
   - i2c
 upper_body:
   type: mh5_hardware/MH5DynamixelInterface
