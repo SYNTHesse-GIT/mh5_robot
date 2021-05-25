@@ -121,7 +121,7 @@ bool MH5DynamixelInterface::initJoints()
         // because both axles' torque needs to be turned off in order to update
         // the registers; we first scan all the servos and disable torque if
         // necessary
-        if(j->isActive(true)) {
+        if(j->present() && j->isActive(true)) {
             ROS_INFO("[%s] torqe is enabled for %s [%d]; it will be disabled to allow configuration of servos",
                      nh_.getNamespace().c_str(), j->name().c_str(), j->id());
             if(!j->torqueOff()) {
@@ -136,9 +136,11 @@ bool MH5DynamixelInterface::initJoints()
     // now we can initialize the registers
     for (int i=0; i < num_joints_; i++) 
     {
-        joints_[i]->initRegisters();
-        ROS_INFO("[%s] joint %s [%d] initialized", nh_.getNamespace().c_str(),
-                 joints_[i]->name().c_str(), joints_[i]->id());
+        if (joints_[i]->present()) {
+            joints_[i]->initRegisters();
+            ROS_INFO("[%s] joint %s [%d] initialized", nh_.getNamespace().c_str(),
+                     joints_[i]->name().c_str(), joints_[i]->id());
+        }
     }
 
     return true;
