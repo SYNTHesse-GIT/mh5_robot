@@ -29,6 +29,7 @@ add_library(mh5_hardware
     src/dynamixel_interface.cpp
     src/dynamixel_device.cpp
     src/dynamixel_joint.cpp
+    src/foot_sensor.cpp
     src/dynamixel_loop.cpp
     src/i2c_interface.cpp
     src/LSM6DS3.cpp

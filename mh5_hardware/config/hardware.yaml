@@ -71,6 +71,9 @@ lower_body:
     - r_kne_y
     - r_ank_p
     - r_ank_r
+  sensors:
+    - l_foot
+    - r_foot
   l_hip_r:
     id: 16
     inverse: true
@@ -106,6 +109,10 @@ lower_body:
   r_ank_r:
     id: 21
     inverse: true
+  l_foot:
+    id: 19
+  r_foot:
+    id: 29
 i2c:
   type: mh5_hardware/MH5I2CInterface
   port: /dev/i2c-1

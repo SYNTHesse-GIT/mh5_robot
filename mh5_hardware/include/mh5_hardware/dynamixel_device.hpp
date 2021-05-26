@@ -1,3 +1,26 @@
+/**
+ * @file dynamixel_device.hpp
+ * @author Alex Sonea
+ * @brief 
+ * @version 0.1
+ * @date 2021-05-26
+ * 
+ * @copyright Copyright (c) 2021
+ * 
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
 #include <ros/ros.h>
 #include <dynamixel_sdk/dynamixel_sdk.h>
 #include <mh5_hardware/port_handler.hpp>
@@ -23,9 +46,9 @@ public:
     /**
      * @brief Uses information from the paramter server to initialize the Device.
      * 
-     * It will look for the following paramters in the server, under the joint name:
+     * It will look for the following paramters in the server, under the device name:
      * 
-     * - ``id``: the Dynamixel ID of the sensor; if missing the sensor will be marked 
+     * - ``id``: the Dynamixel ID of the device; if missing the device will be marked 
      * as not present (ex. present_ = false) and this will exclude it from all
      * communication
      * 
@@ -36,7 +59,7 @@ public:
      * @param ph Dynamixel port handler for communication; should have been
      * checked and initialized priod by the HW interface
      */
-    void fromParam(ros::NodeHandle& hw_nh, std::string& name, mh5_port_handler::PortHandlerMH5* port, dynamixel::PacketHandler* ph);
+    virtual void fromParam(ros::NodeHandle& hw_nh, std::string& name, mh5_port_handler::PortHandlerMH5* port, dynamixel::PacketHandler* ph);
 
     /**
      * @brief Returns the Dynamixel ID of the device
@@ -69,19 +92,18 @@ public:
     void setPresent(bool state) { present_ = state;}
 
     /**
-     * @brief Performs a Dynamixel ping to the sensor. It will try up to num_tries
+     * @brief Performs a Dynamixel ping to the device. It will try up to num_tries
      * times in case there is no answer or there are communication errors.
      * 
      * @param num_tries how many tries to make if there are no answers
-     * @return true if the joint has responded
-     * @return false if the joint failed to respond after num_tries times
+     * @return true if the device has responded
+     * @return false if the device failed to respond after num_tries times
      */
     bool ping(const int num_tries);
 
     /**
      * @brief Hard-codes the initialization of the device. Subclasses must
      * override the method.
-     * 
      */
     virtual void initRegisters() = 0;
 
@@ -143,7 +165,7 @@ public:
      * used by the sync loops after successful processing of an
      * update.
      */
-    void resetRebootCommandFlag() { reboot_command_flag_ = 0.0; reboot_command_flag_ = false; }
+    void resetRebootCommandFlag() { reboot_command_flag_ = false; }
 
 
 protected:

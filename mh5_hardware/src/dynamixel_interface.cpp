@@ -27,6 +27,8 @@ bool MH5DynamixelInterface::init(ros::NodeHandle& root_nh, ros::NodeHandle& robo
 
     if (!initJoints()) return false;
 
+    if (!initSensors()) return false;
+
     if (!setupDynamixelLoops()) return false;
 
     //Register handles
@@ -143,6 +145,45 @@ bool MH5DynamixelInterface::initJoints()
         }
     }
 
+    return true;
+}
+
+
+bool MH5DynamixelInterface::initSensors()
+{
+    //get sensor names and num of sensors
+    std::vector<std::string>    sensor_names;
+    if (nh_.getParam("sensors", sensor_names))
+    {
+        num_sensors_ = sensor_names.size();
+
+        if (num_sensors_ == 0) {
+            ROS_ERROR("[%s] 'sensors' is empty", nh_.getNamespace().c_str());
+            return false;
+        }
+
+        foot_sensors_.resize(num_sensors_);
+
+        for (int i=0; i < num_sensors_; i++)
+        {
+            FootSensor* fs = new FootSensor();
+            // get param setting
+            fs->fromParam(nh_, sensor_names[i], portHandler_, packetHandler_);
+            // see if avaialble
+            if(!fs->ping(5)) {
+                ROS_ERROR("[%s] sensor %s [%d] will be disabled (failed to communicate 5 times)", 
+                            nss_, fs->name().c_str(), fs->id());
+                fs->setPresent(false);
+            }
+            else {
+                fs->initRegisters();
+                ROS_INFO("[%s] sensor %s [%d] initialized", nh_.getNamespace().c_str(),
+                        fs->name().c_str(), fs->id());
+            }
+            foot_sensors_[i] = fs;
+        }
+    }
+    
     return true;
 }
 

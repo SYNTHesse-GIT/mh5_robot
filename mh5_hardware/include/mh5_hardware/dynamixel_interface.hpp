@@ -1,5 +1,6 @@
 #include "dynamixel_joint.hpp"
 #include "dynamixel_loop.hpp"
+#include "foot_sensor.hpp"
 #include "active_joint_interface.hpp"
 
 
@@ -133,6 +134,9 @@ protected:
     int                         num_joints_;
     std::vector<Joint *>        joints_;
 
+    int                         num_sensors_;
+    std::vector<FootSensor *>   foot_sensors_;
+
     /**
      * @brief Initializes the Dynamixel port.
      * 
@@ -148,6 +152,14 @@ protected:
      * @return false 
      */
     bool initJoints();
+
+    /**
+     * @brief Initializes the sensors.
+     * 
+     * @return true 
+     * @return false 
+     */
+    bool initSensors();
 
     /**
      * @brief Convenience function that constructs a loop, reads parameters
