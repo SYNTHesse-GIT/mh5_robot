@@ -34,10 +34,28 @@ class MH5PortHandler
     :private-members:
     :undoc-members:
 
+class DynamixelDevice
+^^^^^^^^^^^^^^^^^^^^^
+
+.. doxygenclass:: mh5_hardware::DynamixelDevice
+    :members:
+    :protected-members:
+    :private-members:
+    :undoc-members:
+
 class Joint
 ^^^^^^^^^^^
 
 .. doxygenclass:: mh5_hardware::Joint
+    :members:
+    :protected-members:
+    :private-members:
+    :undoc-members:
+
+class FootSensor
+^^^^^^^^^^^^^^^^
+
+.. doxygenclass:: mh5_hardware::FootSensor
     :members:
     :protected-members:
     :private-members:
