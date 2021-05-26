@@ -28,8 +28,15 @@
 namespace mh5_hardware
 {
 
+typedef struct {
+    u_int16_t   fl;     // front left
+    u_int16_t   fr;     // front right
+    u_int16_t   bl;     // back left
+    u_int16_t   br;     // back right
+} FootReading;
+
 /**
- * @brief Represents a Dyanmixel Foot sensor.
+ * @brief Represents a Dynamixel Foot sensor.
  * 
  * Also has convenience methods for creating HW interfaces for access by
  * controllers.
@@ -81,6 +88,7 @@ public:
 
 
 protected:
+    FootReading     foot_readings_;
     // //hardware handles
     // /// @brief A handle that provides access to position, velocity and effort
     // hardware_interface::JointStateHandle    jointStateHandle_;
