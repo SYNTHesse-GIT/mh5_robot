@@ -129,5 +129,42 @@ private:
 
 };
 
+class TempVoltInterface : public hardware_interface::HardwareResourceManager<TempVoltHandle> {};
 
-}
+
+class VoltCurrHandle
+{
+public:
+
+    VoltCurrHandle() = default;
+
+    VoltCurrHandle(const std::string& name, const double* volt, const double* curr)
+        : name_(name), volt_(volt), curr_(curr)
+    {
+        if (!volt)
+        {
+        throw HardwareInterfaceException("Cannot create handle '" + name + "'. Voltage data pointer is null.");
+        }
+        if (!curr)
+        {
+        throw HardwareInterfaceException("Cannot create handle '" + name + "'. Current data pointer is null.");
+        }
+    }
+
+    std::string getName() const {return name_;}
+    double getVoltage()  const {assert(vel_); return *volt_;}
+    double getCurrent()  const {assert(pos_); return *curr_;}
+    const double* getVoltagePtr() const {return volt_;}
+    const double* getCurrPtr() const {return curr_;}
+
+private:
+
+    std::string name_;
+    const double* volt_           = {nullptr};
+    const double* curr_           = {nullptr};
+
+};
+
+class VoltCurrInterface : public hardware_interface::HardwareResourceManager<VoltCurrHandle> {};
+
+} // namespace
