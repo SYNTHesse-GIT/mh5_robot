@@ -329,7 +329,9 @@ protected:
     hardware_interface::PosVelJointHandle   jointPosVelHandle_;
 
     /// @brief A handle that provides access to desired torque state
-    mh5_hardware::JointTorqueAndReboot       jointActiveHandle_;
+    mh5_hardware::JointTorqueAndReboot      jointActiveHandle_;
+
+    mh5_hardware::TempVoltHandle            jointTempVoltHandle_;
 };
 
 
