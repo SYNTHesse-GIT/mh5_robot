@@ -22,11 +22,11 @@ namespace mh5_controllers
  * ``mh5_controllers/ActivateJoint``. The name passed in calls to this 
  * service can be individual joints or groups of joints.
  * 
- *      rosservice call /torque_control/swtich_torque "{name: "head_p", state: true}"
+ *      rosservice call /torque_control/switch_torque "{name: "head_p", state: true}"
  * 
  * of for a group:
  * 
- *      rosservice call /torque_control/swtich_torque "{name: "head", state: true}"
+ *      rosservice call /torque_control/switch_torque "{name: "head", state: true}"
  * 
  * Will simply turn on  or off the torque on all the servos associated with the 
  * group.

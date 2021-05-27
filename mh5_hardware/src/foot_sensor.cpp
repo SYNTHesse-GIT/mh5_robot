@@ -82,3 +82,36 @@ void FootSensor::initRegisters()
     // active_command_flag_ = false;
     reboot_command_flag_ = false;
 }
+
+bool FootSensor::read4Sensors(u_int16_t address, FootReading& readings)
+{
+    int     dxl_comm_result = COMM_TX_FAIL;             // Communication result
+    uint8_t dxl_error       = 0;                        // Dynamixel error
+    bool    result          = false;
+    uint8_t buffer[8]       = {0};
+
+    dxl_comm_result = ph_->readTxRx(port_, id_, address, 8, buffer, &dxl_error);
+    if (dxl_comm_result != COMM_SUCCESS) {
+        return false;
+    } else {
+        readings.fl = DXL_MAKEWORD(buffer[0], buffer[1]);
+        readings.fr = DXL_MAKEWORD(buffer[2], buffer[3]);
+        readings.bl = DXL_MAKEWORD(buffer[4], buffer[5]);
+        readings.br = DXL_MAKEWORD(buffer[6], buffer[7]);
+        return true;
+    }
+}
+
+bool FootSensor::readCalibrationFactors()
+{
+    return true;
+}
+bool FootSensor::updateCalibrationFactors()
+{
+    return true;
+}
+
+bool FootSensor::readPower()
+{
+    return true;
+}

@@ -96,4 +96,38 @@ private:
 class ActiveJointInterface : public hardware_interface::HardwareResourceManager<JointTorqueAndReboot> {};
 
 
+class TempVoltHandle
+{
+public:
+
+    TempVoltHandle() = default;
+
+    TempVoltHandle(const std::string& name, const double* temp, const double* volt)
+        : name_(name), temp_(temp), volt_(volt)
+    {
+        if (!temp)
+        {
+        throw HardwareInterfaceException("Cannot create handle '" + name + "'. Temperature data pointer is null.");
+        }
+        if (!volt)
+        {
+        throw HardwareInterfaceException("Cannot create handle '" + name + "'. Voltage data pointer is null.");
+        }
+    }
+
+    std::string getName() const {return name_;}
+    double getTemperature()  const {assert(pos_); return *temp_;}
+    double getVoltage()  const {assert(vel_); return *volt_;}
+    const double* getTemperaturePtr() const {return temp_;}
+    const double* getVoltagePtr() const {return volt_;}
+
+private:
+
+    std::string name_;
+    const double* temp_           = {nullptr};
+    const double* volt_           = {nullptr};
+
+};
+
+
 }
