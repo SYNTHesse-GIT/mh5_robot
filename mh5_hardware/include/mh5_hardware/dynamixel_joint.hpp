@@ -27,7 +27,7 @@
 #include <hardware_interface/robot_hw.h>
 
 #include "port_handler.hpp"
-#include "active_joint_interface.hpp"
+#include "resource_interfaces.hpp"
 #include "dynamixel_device.hpp"
 
 #pragma once

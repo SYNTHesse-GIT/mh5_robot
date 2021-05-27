@@ -1,7 +1,7 @@
 #include "dynamixel_joint.hpp"
 #include "dynamixel_loop.hpp"
 #include "foot_sensor.hpp"
-#include "active_joint_interface.hpp"
+#include "resource_interfaces.hpp"
 
 
 #pragma once

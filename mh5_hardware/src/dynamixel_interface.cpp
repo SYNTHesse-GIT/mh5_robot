@@ -2,7 +2,7 @@
 #include <pluginlib/class_list_macros.hpp>
 
 #include "mh5_hardware/dynamixel_interface.hpp"
-#include "mh5_hardware/active_joint_interface.hpp"
+// #include "mh5_hardware/active_joint_interface.hpp"
 #include "mh5_hardware/dynamixel_joint.hpp"
 
 using namespace mh5_hardware;
