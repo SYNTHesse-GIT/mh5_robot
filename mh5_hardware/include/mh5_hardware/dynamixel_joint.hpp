@@ -275,6 +275,7 @@ public:
      */
     const mh5_hardware::JointTorqueAndReboot& getJointActiveHandle() { return jointActiveHandle_; }
 
+    const mh5_hardware::TempVoltHandle& getTempVoltHandle() { return jointTempVoltHandle_; }
 
 protected:
     //actual servos

@@ -1,8 +1,9 @@
-
+#include <realtime_tools/realtime_publisher.h>
 #include <controller_interface/multi_interface_controller.h>
 
+#include <mh5_msgs/DeviceStatus.h>
+#include <mh5_hardware/resource_interfaces.hpp>
 
-// #include "mh5_controllers/active_joint_controller.hpp"
 
 #pragma once
 
@@ -10,11 +11,11 @@ namespace mh5_controllers
 {
 
 
-class DeviceStatusController : public controller_interface::MultiInterfaceController<hardware_interface::TempVoltInterface, mh5_hardware::VoltCurrInterface>
+class DeviceStatusController : public controller_interface::MultiInterfaceController<mh5_hardware::TempVoltInterface, mh5_hardware::VoltCurrInterface>
 {
 public:
-    ExtendedJointTrajectoryController()
-    : controller_interface::MultiInterfaceController<hardware_interface::PosVelJointInterface, mh5_hardware::ActiveJointInterface> (true)
+    DeviceStatusController()
+    : controller_interface::MultiInterfaceController<mh5_hardware::TempVoltInterface, mh5_hardware::VoltCurrInterface> (true)
     {}
 
     bool init(hardware_interface::RobotHW* robot_hw, ros::NodeHandle& root_nh, ros::NodeHandle& controller_nh);
@@ -26,6 +27,15 @@ public:
     void update(const ros::Time& time, const ros::Duration& period);
 
 private:
-    mh5_controllers::BaseJointTrajectoryController*  pos_controller_;
-    mh5_controllers::ActiveJointController*          act_controller_;
+    double      rate_;
+    ros::Time   last_publish_time_;
+
+    std::vector<mh5_hardware::TempVoltHandle>           joints_temp_volt_;
+    std::vector<mh5_hardware::VoltCurrHandle>           sensors_volt_curr_;
+    // mh5_controllers::BaseJointTrajectoryController*  pos_controller_;
+    // mh5_controllers::ActiveJointController*          act_controller_;
+    std::shared_ptr<realtime_tools::RealtimePublisher<mh5_msgs::DeviceStatus> > realtime_pub_;
+
 };
+
+} // namespace

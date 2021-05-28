@@ -14,5 +14,6 @@
              torque_control
              communication_statistics
              imu_state
+             device_state
     "/>
 </launch>

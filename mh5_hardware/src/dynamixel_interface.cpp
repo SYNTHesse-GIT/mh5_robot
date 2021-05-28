@@ -39,13 +39,21 @@ bool MH5DynamixelInterface::init(ros::NodeHandle& root_nh, ros::NodeHandle& robo
         pos_vel_joint_interface.registerHandle(joints_[i]->getJointPosVelHandle());
         //Torque activation
         active_joint_interface.registerHandle(joints_[i]->getJointActiveHandle());
+
+        joint_temp_volt_interface.registerHandle(joints_[i]->getTempVoltHandle());
+    }
+
+    for (int i=0; i<num_sensors_; i++) {
+        sensor_volt_curr_interface.registerHandle(foot_sensors_[i]->getVoltCurrHandle());
     }
 
     //Register interfaces
     registerInterface(&joint_state_interface);
     registerInterface(&pos_vel_joint_interface);
     registerInterface(&active_joint_interface);
-    
+    registerInterface(&joint_temp_volt_interface);
+    registerInterface(&sensor_volt_curr_interface);
+
     //return true for successful init or ComboRobotHW initialisation will fail
     return true;
 }
@@ -182,6 +190,9 @@ bool MH5DynamixelInterface::initSensors()
             }
             foot_sensors_[i] = fs;
         }
+    }
+    else {
+        num_sensors_ = 0;
     }
     
     return true;

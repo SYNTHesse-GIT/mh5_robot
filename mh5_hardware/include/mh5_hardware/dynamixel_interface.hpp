@@ -130,6 +130,8 @@ protected:
     hardware_interface::PosVelJointInterface    pos_vel_joint_interface;
     mh5_hardware::ActiveJointInterface          active_joint_interface;
     mh5_hardware::CommunicationStatsInterface   communication_stats_interface;
+    mh5_hardware::TempVoltInterface             joint_temp_volt_interface;
+    mh5_hardware::VoltCurrInterface             sensor_volt_curr_interface;
 
     int                         num_joints_;
     std::vector<Joint *>        joints_;
