@@ -27,7 +27,7 @@
 #include <hardware_interface/robot_hw.h>
 
 #include "port_handler.hpp"
-#include "active_joint_interface.hpp"
+#include "resource_interfaces.hpp"
 #include "dynamixel_device.hpp"
 
 #pragma once
@@ -209,11 +209,11 @@ public:
     /**
      * @brief @brief Set the voltage_state_ (represented in V) 
      * from a raw_volt that represents the value read from the hardware. The method
-     * simply divides with 100 and converts to double.
+     * simply divides with 10 and converts to double.
      * 
      * @param raw_volt the value of voltage as read in hardware
      */
-    void setVoltageFromRaw(int16_t raw_volt) { voltage_state_ = raw_volt / 100.0; }
+    void setVoltageFromRaw(int16_t raw_volt) { voltage_state_ = raw_volt / 10.0; }
 
 
     /**
@@ -275,6 +275,7 @@ public:
      */
     const mh5_hardware::JointTorqueAndReboot& getJointActiveHandle() { return jointActiveHandle_; }
 
+    const mh5_hardware::TempVoltHandle& getTempVoltHandle() { return jointTempVoltHandle_; }
 
 protected:
     //actual servos
@@ -329,7 +330,9 @@ protected:
     hardware_interface::PosVelJointHandle   jointPosVelHandle_;
 
     /// @brief A handle that provides access to desired torque state
-    mh5_hardware::JointTorqueAndReboot       jointActiveHandle_;
+    mh5_hardware::JointTorqueAndReboot      jointActiveHandle_;
+
+    mh5_hardware::TempVoltHandle            jointTempVoltHandle_;
 };
 
 

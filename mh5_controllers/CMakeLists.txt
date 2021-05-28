@@ -11,6 +11,7 @@ find_package(catkin REQUIRED COMPONENTS
   mh5_hardware
   mh5_msgs
   diagnostic_msgs
+  sensor_msgs
   std_srvs
   std_msgs
   message_generation
@@ -21,10 +22,10 @@ find_package(catkin REQUIRED COMPONENTS
 #  ActivateJoint.srv
 #)
 
-generate_messages(
-  DEPENDENCIES
-  std_msgs
-)
+#generate_messages(
+#  DEPENDENCIES
+#  std_msgs
+#)
 
 catkin_package(
   INCLUDE_DIRS include
@@ -48,6 +49,7 @@ add_library(mh5_controllers
     src/extended_trajectory_controller.cpp
     src/active_joint_controller.cpp
     src/communication_stats_controller.cpp
+    src/device_status_controller.cpp
 )
 target_link_libraries(mh5_controllers ${catkin_LIBRARIES})
 

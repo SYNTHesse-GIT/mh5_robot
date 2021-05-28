@@ -4,4 +4,5 @@ project(mh5_ui)
 find_package(catkin REQUIRED COMPONENTS
   rospy
   std_msgs
+  mh5_msgs
 )

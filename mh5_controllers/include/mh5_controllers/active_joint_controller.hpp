@@ -1,7 +1,7 @@
 #include <std_srvs/Trigger.h>
 #include <realtime_tools/realtime_buffer.h>
 #include <controller_interface/controller.h>
-#include <mh5_hardware/active_joint_interface.hpp>
+#include <mh5_hardware/resource_interfaces.hpp>
 #include <mh5_msgs/ActivateJoint.h>
 
 #pragma once

@@ -26,31 +26,16 @@
 using namespace mh5_hardware;
 
 
-// void Joint::fromParam(ros::NodeHandle& nh, std::string& name, mh5_port_handler::PortHandlerMH5* port, dynamixel::PacketHandler* ph )
-// {
-//     name_ = name;
-//     port_ = port;
-//     ph_ = ph;
-//     nh_ = nh;
-//     nss_ = nh.getNamespace().c_str();
+void FootSensor::fromParam(ros::NodeHandle& nh, std::string& name, mh5_port_handler::PortHandlerMH5* port, dynamixel::PacketHandler* ph )
+{
+    DynamixelDevice::fromParam(nh, name, port, ph);
 
-//     int servo_id;                    // stores from param server
-//     if (!nh.getParam(name + "/id", servo_id)) {
-//         ROS_ERROR("[%s] ID not found for joint %s; will be disabled", nss_, name_.c_str());
-//         present_ = false;
-//     }
-//     else {
-//         id_ = (uint8_t)servo_id;
-//         present_ = true;
-//         inverse_ = nh.param<bool>(name + "/inverse", false);
-//         offset_ = nh.param<double>(name + "/offset", 0);
-//     }
+    // if(present_) {
+    // }
 
-//     // setup hardware handles
-//     jointStateHandle_ = hardware_interface::JointStateHandle(name_, &position_state_, &velocity_state_, &effort_state_);
-//     jointPosVelHandle_ = hardware_interface::PosVelJointHandle(jointStateHandle_, &position_command_, &velocity_command_);
-//     jointActiveHandle_ = mh5_hardware::JointTorqueAndReboot (jointStateHandle_, &active_command_, &active_command_flag_, &reboot_command_flag_);
-// }
+    // setup hardware handles
+    volt_curr_handle_ = mh5_hardware::VoltCurrHandle(name_, &voltage_, &current_);
+}
 
 
 void FootSensor::initRegisters()

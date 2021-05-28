@@ -22,6 +22,7 @@
  */
 
 #include "dynamixel_device.hpp"
+#include "resource_interfaces.hpp"
 
 #pragma once
 
@@ -69,7 +70,8 @@ public:
      */
     FootSensor() {}
 
-
+    void fromParam(ros::NodeHandle& hw_nh, std::string& name, mh5_port_handler::PortHandlerMH5* port, dynamixel::PacketHandler* ph) override;
+    
     /**
      * @brief Hard-codes the initialization of the registers in the
      * foot (see <link to the documentation>).
@@ -94,6 +96,7 @@ public:
 
     bool readPower();
 
+    const mh5_hardware::VoltCurrHandle& getVoltCurrHandle() { return volt_curr_handle_; }
     // /**
     //  * @brief Returns the handle to the joint position interface object for this joint
     //  * 
@@ -128,6 +131,7 @@ protected:
 
     bool read4Sensors(u_int16_t address, FootReading& readings);
 
+    mh5_hardware::VoltCurrHandle               volt_curr_handle_;
     // //hardware handles
     // /// @brief A handle that provides access to position, velocity and effort
     // hardware_interface::JointStateHandle    jointStateHandle_;

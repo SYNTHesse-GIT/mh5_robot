@@ -27,4 +27,13 @@
     </description>
   </class>
 
+  <class name="mh5_controllers/DeviceStatusController"
+         type="mh5_controllers::DeviceStatusController"
+         base_class_type="controller_interface::ControllerBase">
+    <description>
+      Publishes hardware status like temperature and voltage of servos, current and
+      voltage for the batteries, etc.
+    </description>
+  </class>
+
 </library>

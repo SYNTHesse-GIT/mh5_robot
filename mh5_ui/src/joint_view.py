@@ -15,10 +15,10 @@
 
 from typing import List, Dict
 import rospy
-from sensor_msgs.msg import BatteryState, JointState, Temperature
+from sensor_msgs.msg import JointState
 from snack import Listbox, SnackScreen
 from view_ui import View
-
+from mh5_msgs.msg import DeviceStatus
 
 class JointView(View):
     """View that displays the current state of the joints showing: position,
@@ -54,10 +54,8 @@ class JointView(View):
     or "t" for temp/voltage display as explained in the class defintion."""
     js_subscr: rospy.Subscriber
     """Subscriber to ``joint_stateas``."""
-    jt_subscr: rospy.Subscriber
-    """Subscriber to ``temperature``."""
-    jv_subscr: rospy.Subscriber
-    """Subscriber to ``voltage``."""
+    jtv_subscr: rospy.Subscriber
+    """Subscriber to ``device_status``."""
 
     def __init__(self, screen: SnackScreen,
                        timer: int,
@@ -103,8 +101,8 @@ class JointView(View):
         """
         topic = rospy.get_param('~joint_states_topic', 'joint_states')
         self.js_subsr = rospy.Subscriber(topic, JointState, self.joint_values_call_back)
-        self.jt_subsr = rospy.Subscriber('temperature', Temperature, self.joint_temperature_call_back)
-        self.jv_subsr = rospy.Subscriber('voltage', BatteryState, self.joint_voltage_call_back)
+        self.jtv_subsr = rospy.Subscriber('device_status', DeviceStatus, self.joint_temp_volt_call_back)
+
 
         lb = Listbox(height=22, width=36)
         for pos in range(22):
@@ -184,37 +182,37 @@ class JointView(View):
             self.joint_values[name]['vel'] = msg.velocity[index]
             self.joint_values[name]['eff'] = msg.effort[index]
 
-    def joint_temperature_call_back(self, msg: Temperature) -> None:
-        """Callback for handling ``temperature`` subscription. Uses the
+    def joint_temp_volt_call_back(self, msg: DeviceStatus) -> None:
+        """Callback for handling ``device_status`` subscription. Uses the
         values from the message by comparing the name of the joint
-        and storing the data provided into "temp" key of the
-        ``joint_values`` for that joint.
+        and storing the data provided into "temperatures"  and "voltages" 
+        keys for that joint.
 
         Parameters
         ----------
-        msg : Temperature
+        msg : DeviceStatus
             ROS message with the joint temperatures.
         """
-        name = msg.header.frame_id
-        if name not in self.joint_values:
-            self.joint_values[name] = {}
-        self.joint_values[name]['temp'] = msg.temperature
+        for index, name in enumerate(msg.device_names):
+            if name in self.joint_values:
+                self.joint_values[name]['temp'] = msg.temperatures[index]
+                self.joint_values[name]['volt'] = msg.voltages[index]
 
-    def joint_voltage_call_back(self, msg: BatteryState) -> None:
-        """Callback for handling ``voltage`` subscription. Uses the
-        values from the message by comparing the name of the joint
-        and storing the data provided into "volt" key of the
-        ``joint_values`` for that joint.
+    # def joint_voltage_call_back(self, msg: BatteryState) -> None:
+    #     """Callback for handling ``voltage`` subscription. Uses the
+    #     values from the message by comparing the name of the joint
+    #     and storing the data provided into "volt" key of the
+    #     ``joint_values`` for that joint.
 
-        Parameters
-        ----------
-        msg : BatteryState
-            ROS message with the joint voltage.
-        """
-        name = msg.header.frame_id
-        if name not in self.joint_values:
-            self.joint_values[name] = {}
-        self.joint_values[name]['volt'] = msg.voltage
+    #     Parameters
+    #     ----------
+    #     msg : BatteryState
+    #         ROS message with the joint voltage.
+    #     """
+    #     name = msg.header.frame_id
+    #     if name not in self.joint_values:
+    #         self.joint_values[name] = {}
+    #     self.joint_values[name]['volt'] = msg.voltage
 
     def finish(self) -> None:
         """Handles the request to switch away from the view. To preserve
@@ -225,5 +223,4 @@ class JointView(View):
         # self.jt_subsr.unregister()
         # self.jv_subsr.unregister()
         del self.js_subsr
-        del self.jt_subsr
-        del self.jv_subsr
+        del self.jtv_subsr

@@ -107,17 +107,17 @@ public:
     {
         if (!temp)
         {
-        throw HardwareInterfaceException("Cannot create handle '" + name + "'. Temperature data pointer is null.");
+        throw hardware_interface::HardwareInterfaceException("Cannot create handle '" + name + "'. Temperature data pointer is null.");
         }
         if (!volt)
         {
-        throw HardwareInterfaceException("Cannot create handle '" + name + "'. Voltage data pointer is null.");
+        throw hardware_interface::HardwareInterfaceException("Cannot create handle '" + name + "'. Voltage data pointer is null.");
         }
     }
 
     std::string getName() const {return name_;}
-    double getTemperature()  const {assert(pos_); return *temp_;}
-    double getVoltage()  const {assert(vel_); return *volt_;}
+    double getTemperature()  const {assert(temp_); return *temp_;}
+    double getVoltage()  const {assert(volt_); return *volt_;}
     const double* getTemperaturePtr() const {return temp_;}
     const double* getVoltagePtr() const {return volt_;}
 
@@ -129,5 +129,42 @@ private:
 
 };
 
+class TempVoltInterface : public hardware_interface::HardwareResourceManager<TempVoltHandle> {};
 
-}
+
+class VoltCurrHandle
+{
+public:
+
+    VoltCurrHandle() = default;
+
+    VoltCurrHandle(const std::string& name, const double* volt, const double* curr)
+        : name_(name), volt_(volt), curr_(curr)
+    {
+        if (!volt)
+        {
+        throw hardware_interface::HardwareInterfaceException("Cannot create handle '" + name + "'. Voltage data pointer is null.");
+        }
+        if (!curr)
+        {
+        throw hardware_interface::HardwareInterfaceException("Cannot create handle '" + name + "'. Current data pointer is null.");
+        }
+    }
+
+    std::string getName() const {return name_;}
+    double getVoltage()  const {assert(volt_); return *volt_;}
+    double getCurrent()  const {assert(curr_); return *curr_;}
+    const double* getVoltagePtr() const {return volt_;}
+    const double* getCurrPtr() const {return curr_;}
+
+private:
+
+    std::string name_;
+    const double* volt_           = {nullptr};
+    const double* curr_           = {nullptr};
+
+};
+
+class VoltCurrInterface : public hardware_interface::HardwareResourceManager<VoltCurrHandle> {};
+
+} // namespace
