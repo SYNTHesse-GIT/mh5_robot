@@ -209,11 +209,11 @@ public:
     /**
      * @brief @brief Set the voltage_state_ (represented in V) 
      * from a raw_volt that represents the value read from the hardware. The method
-     * simply divides with 100 and converts to double.
+     * simply divides with 10 and converts to double.
      * 
      * @param raw_volt the value of voltage as read in hardware
      */
-    void setVoltageFromRaw(int16_t raw_volt) { voltage_state_ = raw_volt / 100.0; }
+    void setVoltageFromRaw(int16_t raw_volt) { voltage_state_ = raw_volt / 10.0; }
 
 
     /**
