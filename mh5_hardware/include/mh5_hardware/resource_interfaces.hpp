@@ -8,6 +8,47 @@ namespace mh5_hardware
 {
 
 
+class DynamixelJointStateHandle : public hardware_interface::JointStateHandle
+{
+private:
+    const double* temp_           = {nullptr};
+    const double* volt_           = {nullptr};
+    const bool*   activ_          = {nullptr};
+    const int*    hwerr_          = {nullptr};
+
+public:
+    DynamixelJointStateHandle() = default;
+
+    DynamixelJointStateHandle(
+        const std::string& name,
+        const double* pos, const double* vel, const double* eff,
+        const double* temp, const double* volt,
+        const bool* activ, const int* hwerr)
+        : hardware_interface::JointStateHandle(name, pos, vel, eff),
+          temp_(temp), volt_(volt), activ_(activ), hwerr_(hwerr)
+    {
+        if (!temp)
+        {
+            throw hardware_interface::HardwareInterfaceException("Cannot create handle '" + name + "'. Temperature data pointer is null.");
+        }
+        if (!volt)
+        {
+            throw hardware_interface::HardwareInterfaceException("Cannot create handle '" + name + "'. Voltage data pointer is null.");
+        }
+        if (!activ)
+        {
+            throw hardware_interface::HardwareInterfaceException("Cannot create handle '" + name + "'. Activation status data pointer is null.");
+        }
+        if (!hwerr)
+        {
+            throw hardware_interface::HardwareInterfaceException("Cannot create handle '" + name + "'. Hardware error data pointer is null.");
+        }
+    }
+};
+
+class DynamixelJointStateInterface : public hardware_interface::HardwareResourceManager<DynamixelJointStateHandle> {};
+
+
 /**
  * @brief Extends the hardware_interface::JointHandle with a boolean flag
  * that indicates when a new command was posted. This helps the HW interface
