@@ -26,7 +26,6 @@
 
 using namespace mh5_hardware;
 
-#define TRIES 5         // retry for dynamixel communication
 
 void DynamixelDevice::fromParam(ros::NodeHandle& nh, std::string& name, mh5_port_handler::PortHandlerMH5* port, dynamixel::PacketHandler* ph )
 {
@@ -59,13 +58,13 @@ bool DynamixelDevice::ping(const int num_tries )
         dxl_comm_result = ph_->ping(port_, id_, &dxl_error);
         
         if (dxl_comm_result != COMM_SUCCESS) {
-            ROS_ERROR_ONCE("[%s] failed to communicate with device %s [%d]: %s", 
+            ROS_WARN("[%s] failed to communicate with device %s [%d]: %s", 
                       nss_, name_.c_str(), id_, ph_->getTxRxResult(dxl_comm_result));
             continue;
         }
         
         if (dxl_error != 0) {
-            ROS_ERROR_ONCE("[%s] error reported when communicating with device %s [%d]: %s", 
+            ROS_WARN("[%s] error reported when communicating with device %s [%d]: %s", 
                       nss_, name_.c_str(), id_, ph_->getRxPacketError(dxl_error));
             continue;
         }
@@ -106,13 +105,13 @@ bool DynamixelDevice::readRegister(const uint16_t address, const int size, long&
         }
 
         if (dxl_comm_result != COMM_SUCCESS) {
-            ROS_ERROR_ONCE("[%s] readRegister communication failure (%s) for device %s [%d], register %d",
+            ROS_WARN("[%s] readRegister communication failure (%s) for device %s [%d], register %d",
                       nss_, ph_->getTxRxResult(dxl_comm_result), name_.c_str(), id_, address);
             continue;
         }
 
         if (dxl_error != 0) {
-            ROS_ERROR_ONCE("[%s] readRegister packet error (%s) for device %s [%d], register %d",
+            ROS_WARN("[%s] readRegister packet error (%s) for device %s [%d], register %d",
                       nss_, ph_->getRxPacketError(dxl_error), name_.c_str(), id_, address);
             continue;
         }
@@ -172,6 +171,8 @@ bool DynamixelDevice::writeRegister(const uint16_t address, const int size, cons
 
 bool DynamixelDevice::reboot(const int num_tries)
 {
+    //  it will reset the reboot command anyway
+    reboot_command_ = false;
     for (int n=0; n < num_tries; n++)
     {
         int dxl_comm_result = COMM_TX_FAIL;             // Communication result

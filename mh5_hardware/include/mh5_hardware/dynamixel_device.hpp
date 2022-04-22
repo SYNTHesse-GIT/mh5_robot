@@ -82,7 +82,7 @@ public:
      * @return true if the device is physically present
      * @return false if the device could not be detected
      */
-    bool present() { return present_;}
+    bool isPresent() { return present_;}
 
     /**
      * @brief Updates the present flag of the device.
@@ -99,7 +99,7 @@ public:
      * @return true if the device has responded
      * @return false if the device failed to respond after num_tries times
      */
-    bool ping(const int num_tries);
+    bool ping(const int num_tries=5);
 
     /**
      * @brief Hard-codes the initialization of the device. Subclasses must
@@ -120,7 +120,7 @@ public:
      * @return true if the write was sucessful
      * @return false if there was a communication or hardware error
      */
-    bool writeRegister(const uint16_t address, const int size, const long value, const int num_tries);
+    bool writeRegister(const uint16_t address, const int size, const long value, const int num_tries=5);
 
     /**
      * @brief Convenience method for reading a register from the device. Depending
@@ -135,7 +135,7 @@ public:
      * @return true if the read was sucessful
      * @return false if there was a communication or hardware error
      */
-    bool readRegister(const uint16_t address, const int size, long& value, const int num_tries);
+    bool readRegister(const uint16_t address, const int size, long& value, const int num_tries=5);
 
 
     /**
@@ -145,54 +145,39 @@ public:
      * @return true if the reboot was successful
      * @return false if there were communication of harware errors
      */
-    bool reboot(const int num_tries);
+    bool reboot(const int num_tries=5);
 
 
     /**
      * @brief Indicates if there was a command to reboot the device that
-     * was not yet completed. It simply returns the reboot_command_flag_
+     * was not yet completed. It simply returns the `reboot_command_`
      * member that should be set whenever a controllers wants to reboot
      * the device.
      * 
      * @return true there is a reset that was not syncronised to hardware
      * @return false there is no change in the status
      */
-    bool shouldReboot() { return reboot_command_flag_; }
+    bool shouldReboot() { return reboot_command_; }
 
 
-    /**
-     * @brief Resets to false the reboot_command_flag_. Normally 
-     * used by the sync loops after successful processing of an
-     * update.
-     */
-    void resetRebootCommandFlag() { reboot_command_flag_ = false; }
+    // /**
+    //  * @brief Resets to false the reboot_command_flag_. Normally 
+    //  * used by the sync loops after successful processing of an
+    //  * update.
+    //  */
+    // void resetRebootCommandFlag() { reboot_command_flag_ = false; }
 
 
 protected:
-    /// @brief The name of the device
-    std::string                         name_;
-
-    /// @brief The communication port to be used
-    mh5_port_handler::PortHandlerMH5*   port_;
-
-    /// @brief Dynamixel packet handler to be used
-    dynamixel::PacketHandler*           ph_;
-
-    /// @brief The node handler of the owner (hardware interface)
-    ros::NodeHandle                     nh_;
-
-    /// @brief Name of the owner as a c_str() - for easy printing of messages
-    const char*                         nss_;
-
-    //actual device
-    /// @brief Device ID
-    uint8_t         id_;
-
-    /// @brief Device is present (true) or not (false)
-    bool            present_;
-
-    /// @brief Controller requested a reboot and is not yet syncronised
-    bool            reboot_command_flag_;
+    
+    std::string                         name_;           /// @brief The name of the device
+    mh5_port_handler::PortHandlerMH5*   port_;           /// @brief The communication port to be used
+    dynamixel::PacketHandler*           ph_;             /// @brief Dynamixel packet handler to be used
+    ros::NodeHandle                     nh_;             /// @brief The node handler of the owner (hardware interface)
+    const char*                         nss_;            /// @brief Name of the owner as a c_str() - for easy printing of messages
+    uint8_t                             id_;             /// @brief Device ID
+    bool                                present_;        /// @brief Device is present (true) or not (false)
+    bool                                reboot_command_; /// @brief Controller requested a reboot and is not yet syncronised
 };
 
 

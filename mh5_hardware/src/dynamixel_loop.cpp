@@ -10,7 +10,7 @@ bool GroupSyncRead::prepare(std::vector<Joint *> joints)
 {
     bool params_added = false;
     for (auto & joint : joints) {
-        if (joint->present()) {
+        if (joint->isPresent()) {
             if(!addParam(joint->id()))
                 ROS_WARN("Failed to add servo ID %d to loop %s", joint->id(), getName().c_str());
             else
@@ -69,7 +69,7 @@ bool PVLReader::afterCommunication(std::vector<Joint *> joints)
         const char* name = getName().c_str();   // for messsages
         uint8_t id = joint->id();                // to avoid callling it all the time...
 
-        if (!joint->present())                   //only present servos
+        if (!joint->isPresent())                   //only present servos
             continue;
         
         // check no errors
@@ -123,7 +123,7 @@ bool TVReader::afterCommunication(std::vector<Joint *> joints)
         const char* name = getName().c_str();   // for messsages
         uint8_t id = joint->id();                // to avoid callling it all the time...
 
-        if (!joint->present())                   //only present servos
+        if (!joint->isPresent())                   //only present servos
             continue;
         
         // check no errors
@@ -170,7 +170,7 @@ bool PVWriter::beforeCommunication(std::vector<Joint *> joints)
     
     for (auto & joint : joints)
     {
-        if (joint->present())
+        if (joint->isPresent())
         {
             int32_t p = joint->getRawPositionFromCommand();
             uint32_t vp = joint->getVelocityProfileFromCommand();
@@ -213,15 +213,13 @@ bool TWriter::beforeCommunication(std::vector<Joint *> joints)
     // handle reboot
     for (auto & joint: joints)
     {
-        if (joint->present() && joint->shouldReboot()) {
+        if (joint->isPresent() && joint->shouldReboot()) {
             if(joint->reboot(5)) {
                 ROS_INFO("joint %s [%d] rebooted", joint->name().c_str(), joint->id());
-                joint->resetRebootCommandFlag();
             }
             else {
                 ROS_ERROR("joint %s [%d] failed to reboot", joint->name().c_str(), joint->id());
                 // we do the reset of the command to force the user to reissue the command
-                joint->resetRebootCommandFlag();
             }
         }
     }
@@ -236,7 +234,7 @@ bool TWriter::beforeCommunication(std::vector<Joint *> joints)
     
     for (auto & joint : joints)
     {
-        if (joint->present() && joint->shouldToggleTorque())
+        if (joint->isPresent() && joint->shouldToggleTorque())
         {
             command[0] = joint->getRawTorqueActiveFromCommand();
             // addParam

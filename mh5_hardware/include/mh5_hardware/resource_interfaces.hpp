@@ -8,24 +8,20 @@ namespace mh5_hardware
 {
 
 
-class DynamixelJointStateHandle : public hardware_interface::JointStateHandle
+class DynamixelStatusHandle
 {
 private:
+    std::string   name_;
     const double* temp_           = {nullptr};
     const double* volt_           = {nullptr};
     const bool*   activ_          = {nullptr};
     const int*    hwerr_          = {nullptr};
 
 public:
-    DynamixelJointStateHandle() = default;
+    DynamixelStatusHandle() = default;
 
-    DynamixelJointStateHandle(
-        const std::string& name,
-        const double* pos, const double* vel, const double* eff,
-        const double* temp, const double* volt,
-        const bool* activ, const int* hwerr)
-        : hardware_interface::JointStateHandle(name, pos, vel, eff),
-          temp_(temp), volt_(volt), activ_(activ), hwerr_(hwerr)
+    DynamixelStatusHandle(const std::string& name, const double* temp, const double* volt, const bool* activ, const int* hwerr)
+        : name_(name), temp_(temp), volt_(volt), activ_(activ), hwerr_(hwerr)
     {
         if (!temp)
         {
@@ -44,9 +40,19 @@ public:
             throw hardware_interface::HardwareInterfaceException("Cannot create handle '" + name + "'. Hardware error data pointer is null.");
         }
     }
+    std::string getName() const { return name_; }
+    double getTemperature() const { assert(temp_); return *temp_; }
+    double getVoltage() const { assert(volt_); return *volt_; }
+    bool isActive() const { assert(activ_); return *activ_; }
+    int getHWError() const {assert(hwerr_); return *hwerr_; }
+
+    const double* getTemperaturePtr() const { return temp_; }
+    const double* getVoltagePtr() const { return volt_; }
+    const bool* isActivePtr() const { return activ_; }
+    const int* getHWErrorPtr() const { return hwerr_; }
 };
 
-class DynamixelJointStateInterface : public hardware_interface::HardwareResourceManager<DynamixelJointStateHandle> {};
+class DynamixelStatusInterface : public hardware_interface::HardwareResourceManager<DynamixelStatusHandle> {};
 
 
 /**

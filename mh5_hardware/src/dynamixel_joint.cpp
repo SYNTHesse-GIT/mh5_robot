@@ -38,9 +38,10 @@ void Joint::fromParam(ros::NodeHandle& nh, std::string& name, mh5_port_handler::
 
     // setup hardware handles
     jointStateHandle_ = hardware_interface::JointStateHandle(name_, &position_state_, &velocity_state_, &effort_state_);
+    jointStatusHandle_ = mh5_hardware::DynamixelStatusHandle(name_, &temperature_state_, &voltage_state_, &active_state_, &hwerr_state_);
     jointPosVelHandle_ = hardware_interface::PosVelJointHandle(jointStateHandle_, &position_command_, &velocity_command_);
-    jointActiveHandle_ = mh5_hardware::JointTorqueAndReboot (jointStateHandle_, &active_command_, &active_command_flag_, &reboot_command_flag_);
-    jointTempVoltHandle_ = mh5_hardware::TempVoltHandle(name_, &temperature_state_, &voltage_state_);
+    jointActiveHandle_ = mh5_hardware::JointTorqueAndReboot (jointStateHandle_, &active_command_, &active_command_flag_, &reboot_command_);
+    // jointTempVoltHandle_ = mh5_hardware::TempVoltHandle(name_, &temperature_state_, &voltage_state_);
 }
 
 
@@ -109,5 +110,5 @@ void Joint::initRegisters()
     active_command_ = 0.0;
     active_state_ = 0.0;
     active_command_flag_ = false;
-    reboot_command_flag_ = false;
+    reboot_command_ = false;
 }

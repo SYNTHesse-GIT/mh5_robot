@@ -1,4 +1,4 @@
-dynamixel_state:
+joint_state:
   type: joint_state_controller/JointStateController
   publish_rate: 100
 
@@ -42,5 +42,5 @@ imu_state:
   type: imu_sensor_controller/ImuSensorController
   publish_rate: 100
 
-device_state:
+device_status:
   type: mh5_controllers/DeviceStatusController

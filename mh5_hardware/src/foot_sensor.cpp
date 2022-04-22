@@ -65,7 +65,7 @@ void FootSensor::initRegisters()
     // active_command_ = 0.0;
     // active_state_ = 0.0;
     // active_command_flag_ = false;
-    reboot_command_flag_ = false;
+    reboot_command_ = false;
 }
 
 bool FootSensor::read4Sensors(u_int16_t address, FootReading& readings)

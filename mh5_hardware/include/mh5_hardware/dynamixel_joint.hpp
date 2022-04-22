@@ -261,6 +261,8 @@ public:
      */
     const hardware_interface::JointStateHandle& getJointStateHandle() { return jointStateHandle_; }
 
+    const mh5_hardware::DynamixelStatusHandle& getJointStatusHandle() { return jointStatusHandle_; }
+
     /**
      * @brief Returns the handle to the joint position / velocity command interface object for this joint
      * 
@@ -275,64 +277,37 @@ public:
      */
     const mh5_hardware::JointTorqueAndReboot& getJointActiveHandle() { return jointActiveHandle_; }
 
-    const mh5_hardware::TempVoltHandle& getTempVoltHandle() { return jointTempVoltHandle_; }
+    // const mh5_hardware::TempVoltHandle& getTempVoltHandle() { return jointTempVoltHandle_; }
 
 protected:
-    //actual servos
-    /// @brief Servo uses inverse rotation
-    bool            inverse_;
-
-    /// @brief Offest for servo from 0 position (center) in radians
-    double          offset_;
-
-    //actual states
-    /// @brief Current position in radians
-    double          position_state_;
-
-    /// @brief Current velocity in radians/s
-    double          velocity_state_;
-
-    /// @brief Current effort in Nm
-    double          effort_state_;
-
-    /// @brief Current torque state [0.0 or 1.0]
-    double          active_state_;
-
-    /// @brief Current voltage [V]
-    double          voltage_state_;
-
-    /// @brief Current temperature deg C
-    double          temperature_state_;
+    // servo registers
+    bool            inverse_;            /// @brief Servo uses inverse rotation
+    double          offset_;             /// @brief Offest for servo from 0 position (center) in radians
+    double          position_state_;     /// @brief Current position in radians
+    double          velocity_state_;     /// @brief Current velocity in radians/s
+    double          effort_state_;       /// @brief Current effort in Nm
+    bool            active_state_;       /// @brief Current torque state [0.0 or 1.0]
+    int             hwerr_state_;        /// @brief Hardware error code
+    double          voltage_state_;      /// @brief Current voltage [V]
+    double          temperature_state_;  /// @brief Current temperature deg C
 
     //commands
-    /// @brief Desired position in radians
-    double          position_command_;
-
-    /// @brief Desired velocity in radians/s
-    double          velocity_command_;
-
-    /// @brief Indicates that the controller has updated the
-    /// desired poistion / velocity and is not yet syncronised.
+    double          position_command_;   /// @brief Desired position in radians
+    double          velocity_command_;   /// @brief Desired velocity in radians/s
     bool            poistion_command_flag_;
-
-    /// @brief Desired torque state [0.0 or 1.0]
-    double          active_command_;
-
-    /// @brief Indicates that the controller has updated the
-    /// desired torque state and is not yet syncronised.
+    double          active_command_;     /// @brief Desired torque state [0.0 or 1.0]
+    bool            reboot_command_;     /// @brief Reboot command indicator
     bool            active_command_flag_;
 
     //hardware handles
-    /// @brief A handle that provides access to position, velocity and effort
-    hardware_interface::JointStateHandle    jointStateHandle_;
+    
+    hardware_interface::JointStateHandle    jointStateHandle_;  /// @brief A handle that provides access to position, velocity and effort
+    mh5_hardware::DynamixelStatusHandle     jointStatusHandle_; /// @brief A handle that provides access to temperature, voltage, activation status and hardware error
+    
+    hardware_interface::PosVelJointHandle   jointPosVelHandle_; /// @brief A handle that provides access to desired position and desired velocity
+    mh5_hardware::JointTorqueAndReboot      jointActiveHandle_; /// @brief A handle that provides access to desired torque state
 
-    /// @brief A handle that provides access to desired position and desired velocity
-    hardware_interface::PosVelJointHandle   jointPosVelHandle_;
-
-    /// @brief A handle that provides access to desired torque state
-    mh5_hardware::JointTorqueAndReboot      jointActiveHandle_;
-
-    mh5_hardware::TempVoltHandle            jointTempVoltHandle_;
+    // mh5_hardware::TempVoltHandle            jointTempVoltHandle_;
 };
 
 

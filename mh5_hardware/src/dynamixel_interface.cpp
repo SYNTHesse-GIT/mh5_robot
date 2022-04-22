@@ -24,23 +24,21 @@ bool MH5DynamixelInterface::init(ros::NodeHandle& root_nh, ros::NodeHandle& robo
     nss_ = nh_.getNamespace().c_str();     // to avoid calling it all the time
     
     if (!initPort()) return false;
-
     if (!initJoints()) return false;
-
     if (!initSensors()) return false;
-
     if (!setupDynamixelLoops()) return false;
 
     //Register handles
     for(int i=0; i<num_joints_; i++){
         //State
         joint_state_interface.registerHandle(joints_[i]->getJointStateHandle());
+        joint_status_interface.registerHandle(joints_[i]->getJointStatusHandle());
         //Command Postion - Velocity
         pos_vel_joint_interface.registerHandle(joints_[i]->getJointPosVelHandle());
         //Torque activation
         active_joint_interface.registerHandle(joints_[i]->getJointActiveHandle());
 
-        joint_temp_volt_interface.registerHandle(joints_[i]->getTempVoltHandle());
+        // joint_temp_volt_interface.registerHandle(joints_[i]->getTempVoltHandle());
     }
 
     for (int i=0; i<num_sensors_; i++) {
@@ -49,9 +47,11 @@ bool MH5DynamixelInterface::init(ros::NodeHandle& root_nh, ros::NodeHandle& robo
 
     //Register interfaces
     registerInterface(&joint_state_interface);
+    registerInterface(&joint_status_interface);
+    // registerInterface((hardware_interface::JointStateInterface*)&joint_state_interface); // for joint_state_controller
     registerInterface(&pos_vel_joint_interface);
     registerInterface(&active_joint_interface);
-    registerInterface(&joint_temp_volt_interface);
+    // registerInterface(&joint_temp_volt_interface);
     registerInterface(&sensor_volt_curr_interface);
 
     //return true for successful init or ComboRobotHW initialisation will fail
@@ -131,7 +131,7 @@ bool MH5DynamixelInterface::initJoints()
         // because both axles' torque needs to be turned off in order to update
         // the registers; we first scan all the servos and disable torque if
         // necessary
-        if(j->present() && j->isActive(true)) {
+        if(j->isPresent() && j->isActive(true)) {
             ROS_INFO("[%s] torqe is enabled for %s [%d]; it will be disabled to allow configuration of servos",
                      nh_.getNamespace().c_str(), j->name().c_str(), j->id());
             if(!j->torqueOff()) {
@@ -146,7 +146,7 @@ bool MH5DynamixelInterface::initJoints()
     // now we can initialize the registers
     for (int i=0; i < num_joints_; i++) 
     {
-        if (joints_[i]->present()) {
+        if (joints_[i]->isPresent()) {
             joints_[i]->initRegisters();
             ROS_INFO("[%s] joint %s [%d] initialized", nh_.getNamespace().c_str(),
                      joints_[i]->name().c_str(), joints_[i]->id());
