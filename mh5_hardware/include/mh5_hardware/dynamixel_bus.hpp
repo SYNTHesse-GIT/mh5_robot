@@ -116,7 +116,7 @@ protected:
     /// @brief Sync Loop for reading the position, velocity and load
     mh5_hardware::PVLReader *pvlReader_;
     /// @brief Sync Loop for reading the temperature and voltage
-    mh5_hardware::TVReader  *tvReader_;
+    mh5_hardware::StatusReader  *statusReader_;
 
     // Write Loops
     /// @brief SyncLoop for writing the position and velocity

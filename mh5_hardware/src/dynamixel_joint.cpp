@@ -53,11 +53,12 @@ bool Joint::isActive(bool refresh)
             ROS_ERROR("[%s] failed to read torque status for %s [%d]", nss_, name_.c_str(), id_);
         }
         else {
-            active_state_ = (double)value;
+            active_state_ = (bool)value;
         }
     }
-    return (active_state_ != 0);
+    return active_state_;
 }
+
 
 
 bool Joint::torqueOn()
@@ -72,15 +73,15 @@ bool Joint::torqueOff()
 }
 
 
-bool Joint::toggleTorque()
-{
-    if(writeRegister(64, 1, (long)active_command_, TRIES)) {
-        active_state_ = active_command_;
-        return true;
-    }
-    else
-        return false;
-}
+// bool Joint::toggleTorque()
+// {
+//     if(writeRegister(64, 1, (long)active_command_, TRIES)) {
+//         active_state_ = active_command_;
+//         return true;
+//     }
+//     else
+//         return false;
+// }
 
 
 void Joint::initRegisters()

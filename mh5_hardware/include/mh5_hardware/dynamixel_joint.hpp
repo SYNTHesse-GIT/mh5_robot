@@ -114,6 +114,12 @@ public:
      */
     bool isActive(bool refresh = false);
 
+    void setActive(bool active) { active_state_ = active; }
+
+    int getHWError() { return hwerr_state_; }
+
+    void setHWEror(int hwerr) { hwerr_state_ = hwerr; }
+
     /**
      * @brief Sets torque on for the joint. Forces writing 1 in the register
      * 64 of the servo.
@@ -150,15 +156,15 @@ public:
      */
     void resetActiveCommandFlag() { active_command_flag_ = false;}
 
-    /**
-     * @brief Changes the torque by writing into register 64 in the hardware
-     * using the active_command_ value.
-     * If the change is successfull it will reset the active_command_flag_.
-     * 
-     * @return true successful change
-     * @return false communication or harware error
-     */
-    bool toggleTorque();
+    // /**
+    //  * @brief Changes the torque by writing into register 64 in the hardware
+    //  * using the active_command_ value.
+    //  * If the change is successfull it will reset the active_command_flag_.
+    //  * 
+    //  * @return true successful change
+    //  * @return false communication or harware error
+    //  */
+    // bool toggleTorque();
 
     /**
      * @brief Produces an internal format for torque status based on a desired 

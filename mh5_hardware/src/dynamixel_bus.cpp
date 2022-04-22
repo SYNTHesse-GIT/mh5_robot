@@ -225,7 +225,7 @@ bool MH5DynamixelBus::setupDynamixelLoops()
     pvlReader_ = setupLoop<mh5_hardware::PVLReader>("pvl_reader", 100.0);
 
     // Temperature, Voltage (TV) Reader
-    tvReader_ = setupLoop<mh5_hardware::TVReader>("tv_reader", 1.0);
+    statusReader_ = setupLoop<mh5_hardware::StatusReader>("stat_reader", 1.0);
 
     // Positon, Velocity (PV) Writer
     pvWriter_ = setupLoop<mh5_hardware::PVWriter>("pv_writer", 100.0);
@@ -247,7 +247,7 @@ bool MH5DynamixelBus::setupDynamixelLoops()
 void MH5DynamixelBus::read(const ros::Time& time, const ros::Duration& period)
 {
     pvlReader_->Execute(time, period, joints_);
-    tvReader_->Execute(time, period, joints_);
+    statusReader_->Execute(time, period, joints_);
 }
 
 

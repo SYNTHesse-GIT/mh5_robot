@@ -288,6 +288,18 @@ public:
     bool Communicate() override;
 };
 
+/**
+ * @brief A specialization of the loop using a Dynamixel GroupSyncRead. Intended for
+ * reading data from a group of dynamixels.
+ * 
+ * This specialization needs a start address and a data length that the loop will
+ * handle, implements the prepare() method that calls addParam() for all IDs of
+ * joints that are marked as "present" and provides a specific implementation of
+ * the Communicate() method.
+ * 
+ */
+
+
 
 /**
  * @brief A specialization of the loop using a Dynamixel GroupSyncWrite. Intended for
@@ -380,7 +392,7 @@ public:
  * registers for XL430 Dynamixel series: present temperature, present voltage,
  * (hence the name TV).
  */
-class TVReader : public GroupSyncRead
+class StatusReader : public GroupSyncRead
 {
 public:
     /**
@@ -392,7 +404,7 @@ public:
      * @param port the dynamixel::PortHandler needed for the communication
      * @param ph the dynamixel::PacketHandler needed for communication 
      */
-    TVReader(const std::string& name, double loop_rate, dynamixel::PortHandler *port, dynamixel::PacketHandler *ph)
+    StatusReader(const std::string& name, double loop_rate, dynamixel::PortHandler *port, dynamixel::PacketHandler *ph)
     : GroupSyncRead(name, loop_rate, port, ph, 144, 3) {}
 
     /**
@@ -407,6 +419,8 @@ public:
      */
     bool afterCommunication(std::vector<Joint *> joints) override;
 };
+
+
 
 
 /**

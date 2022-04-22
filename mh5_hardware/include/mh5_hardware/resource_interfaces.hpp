@@ -143,40 +143,40 @@ private:
 class ActiveJointInterface : public hardware_interface::HardwareResourceManager<JointTorqueAndReboot> {};
 
 
-class TempVoltHandle
-{
-public:
+// class TempVoltHandle
+// {
+// public:
 
-    TempVoltHandle() = default;
+//     TempVoltHandle() = default;
 
-    TempVoltHandle(const std::string& name, const double* temp, const double* volt)
-        : name_(name), temp_(temp), volt_(volt)
-    {
-        if (!temp)
-        {
-        throw hardware_interface::HardwareInterfaceException("Cannot create handle '" + name + "'. Temperature data pointer is null.");
-        }
-        if (!volt)
-        {
-        throw hardware_interface::HardwareInterfaceException("Cannot create handle '" + name + "'. Voltage data pointer is null.");
-        }
-    }
+//     TempVoltHandle(const std::string& name, const double* temp, const double* volt)
+//         : name_(name), temp_(temp), volt_(volt)
+//     {
+//         if (!temp)
+//         {
+//         throw hardware_interface::HardwareInterfaceException("Cannot create handle '" + name + "'. Temperature data pointer is null.");
+//         }
+//         if (!volt)
+//         {
+//         throw hardware_interface::HardwareInterfaceException("Cannot create handle '" + name + "'. Voltage data pointer is null.");
+//         }
+//     }
 
-    std::string getName() const {return name_;}
-    double getTemperature()  const {assert(temp_); return *temp_;}
-    double getVoltage()  const {assert(volt_); return *volt_;}
-    const double* getTemperaturePtr() const {return temp_;}
-    const double* getVoltagePtr() const {return volt_;}
+//     std::string getName() const {return name_;}
+//     double getTemperature()  const {assert(temp_); return *temp_;}
+//     double getVoltage()  const {assert(volt_); return *volt_;}
+//     const double* getTemperaturePtr() const {return temp_;}
+//     const double* getVoltagePtr() const {return volt_;}
 
-private:
+// private:
 
-    std::string name_;
-    const double* temp_           = {nullptr};
-    const double* volt_           = {nullptr};
+//     std::string name_;
+//     const double* temp_           = {nullptr};
+//     const double* volt_           = {nullptr};
 
-};
+// };
 
-class TempVoltInterface : public hardware_interface::HardwareResourceManager<TempVoltHandle> {};
+// class TempVoltInterface : public hardware_interface::HardwareResourceManager<TempVoltHandle> {};
 
 
 class VoltCurrHandle

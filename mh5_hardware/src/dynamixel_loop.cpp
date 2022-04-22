@@ -112,7 +112,7 @@ bool PVLReader::afterCommunication(std::vector<Joint *> joints)
 /******************/
 /* TVReader       */
 /******************/
-bool TVReader::afterCommunication(std::vector<Joint *> joints)
+bool StatusReader::afterCommunication(std::vector<Joint *> joints)
 {
     uint8_t dxl_error = 0;                            // Dynamixel error
     bool dxl_getdata_result = false;                  // GetParam result
@@ -153,6 +153,7 @@ bool TVReader::afterCommunication(std::vector<Joint *> joints)
     // even if there are errors
     return true;
 }
+
 
 
 /******************/
