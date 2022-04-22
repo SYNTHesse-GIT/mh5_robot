@@ -261,6 +261,11 @@ public:
      */
     const hardware_interface::JointStateHandle& getJointStateHandle() { return jointStateHandle_; }
 
+    /**
+     * @brief Returns the handle to the joint status interface object for this joint
+     * 
+     * @return const hardware_interface::JointStatusHandle& 
+     */
     const mh5_hardware::DynamixelStatusHandle& getJointStatusHandle() { return jointStatusHandle_; }
 
     /**
@@ -277,7 +282,6 @@ public:
      */
     const mh5_hardware::JointTorqueAndReboot& getJointActiveHandle() { return jointActiveHandle_; }
 
-    // const mh5_hardware::TempVoltHandle& getTempVoltHandle() { return jointTempVoltHandle_; }
 
 protected:
     // servo registers
@@ -307,7 +311,6 @@ protected:
     hardware_interface::PosVelJointHandle   jointPosVelHandle_; /// @brief A handle that provides access to desired position and desired velocity
     mh5_hardware::JointTorqueAndReboot      jointActiveHandle_; /// @brief A handle that provides access to desired torque state
 
-    // mh5_hardware::TempVoltHandle            jointTempVoltHandle_;
 };
 
 

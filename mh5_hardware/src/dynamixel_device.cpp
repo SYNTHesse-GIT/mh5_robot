@@ -44,6 +44,7 @@ void DynamixelDevice::fromParam(ros::NodeHandle& nh, std::string& name, mh5_port
         id_ = (uint8_t)device_id;
         present_ = true;
     }
+    reboot_command_ = false;
 }
 
 

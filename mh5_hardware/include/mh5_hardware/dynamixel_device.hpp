@@ -160,14 +160,6 @@ public:
     bool shouldReboot() { return reboot_command_; }
 
 
-    // /**
-    //  * @brief Resets to false the reboot_command_flag_. Normally 
-    //  * used by the sync loops after successful processing of an
-    //  * update.
-    //  */
-    // void resetRebootCommandFlag() { reboot_command_flag_ = false; }
-
-
 protected:
     
     std::string                         name_;           /// @brief The name of the device

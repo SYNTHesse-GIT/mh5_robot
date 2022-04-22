@@ -3,7 +3,7 @@ robot_hardware:
   - upper_body
   # - i2c
 upper_body:
-  type: mh5_hardware/MH5DynamixelInterface
+  type: mh5_hardware/MH5DynamixelBus
   joints:
     - head_p
     - head_y
@@ -49,8 +49,7 @@ upper_body:
     id: 41
     inverse: true
 lower_body:
-  type: mh5_hardware/MH5DynamixelInterface
-  port: /dev/ttySC1
+  type: mh5_hardware/MH5DynamixelBus
   baudrate: 2000000
   protocol: 2.0
   rs485: true

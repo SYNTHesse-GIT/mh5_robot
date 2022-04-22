@@ -34,19 +34,19 @@ namespace mh5_hardware
  * 
  *      PLUGINLIB_EXPORT_CLASS(mh5_hardware::MH5DynamixelInterface, hardware_interface::RobotHW)
  */
-class MH5DynamixelInterface: public hardware_interface::RobotHW
+class MH5DynamixelBus: public hardware_interface::RobotHW
 {
 public:
     /** Construct a new MH5DynamixelInterface object. Default constructor 
      * to support ``pluginlib``.
      */
-    MH5DynamixelInterface();
+    MH5DynamixelBus();
 
     /**
      * @brief Destroy the MH5DynamixelInterface object. Provided for 
      * ``pluginlib`` support.
      */
-    ~MH5DynamixelInterface();
+    ~MH5DynamixelBus();
 
     /**
      * @brief Initializes the interface.
@@ -131,7 +131,6 @@ protected:
     hardware_interface::PosVelJointInterface    pos_vel_joint_interface;
     mh5_hardware::ActiveJointInterface          active_joint_interface;
     mh5_hardware::CommunicationStatsInterface   communication_stats_interface;
-    // mh5_hardware::TempVoltInterface             joint_temp_volt_interface;
     mh5_hardware::VoltCurrInterface             sensor_volt_curr_interface;
 
     int                         num_joints_;
