@@ -46,8 +46,8 @@ include_directories(
 
 
 add_library(mh5_controllers
-    src/extended_trajectory_controller.cpp
-    src/active_joint_controller.cpp
+    # src/extended_trajectory_controller.cpp
+    src/dynamixel_joint_controller.cpp
     src/communication_stats_controller.cpp
     src/device_status_controller.cpp
 )

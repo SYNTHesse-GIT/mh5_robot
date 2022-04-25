@@ -55,6 +55,45 @@ public:
 class DynamixelStatusInterface : public hardware_interface::HardwareResourceManager<DynamixelStatusHandle> {};
 
 
+class DynamixelJointControlHandle : public hardware_interface::JointHandle
+{
+private:
+    // std::string   name_;
+    // const double* position_           = {nullptr};
+    // const double* velocity_           = {nullptr};
+    bool*   active_          = {nullptr};
+    bool*   reboot_          = {nullptr};
+
+public:
+    DynamixelJointControlHandle() = default;
+
+    DynamixelJointControlHandle(const hardware_interface::JointStateHandle& js, double* pos_cmd, bool* activ, bool* reboot)
+        : hardware_interface::JointHandle(js, pos_cmd), active_(activ), reboot_(reboot)
+    {
+        if (!activ)
+        {
+            throw hardware_interface::HardwareInterfaceException("Cannot create handle '" + js.getName() + "'. Torque activation data pointer is null.");
+        }
+        if (!reboot)
+        {
+            throw hardware_interface::HardwareInterfaceException("Cannot create handle '" + js.getName() + "'. Reboot command data pointer is null.");
+        }
+    }
+    // std::string getName() const { return name_; }
+    // void setCommand(double command) {assert(position_); *position_ = command;}
+    // double getCommand() const {assert(position_); return *position_;}
+    // const double* getCommandPtr() const {assert(position_); return position_;}
+    void setActive(bool active) {assert(active_); *active_ = active;}
+    bool getActiveCmd() const {assert(active_); return *active_;}
+    const bool* getActiveCmdPtr() const {assert(active_); return active_;}
+    void setReboot(bool reboot) {assert(reboot_); *reboot_ = reboot;}
+    bool getRebootCmd() const {assert(reboot_); return *reboot_;}
+    const bool* getRebootCmdPtr() const {assert(reboot_); return reboot_;}
+};
+
+
+class DynamixelJointControlInterface : public hardware_interface::HardwareResourceManager<DynamixelJointControlHandle, hardware_interface::ClaimResources> {};
+
 /**
  * @brief Extends the hardware_interface::JointHandle with a boolean flag
  * that indicates when a new command was posted. This helps the HW interface
@@ -110,37 +149,37 @@ private:
 
 };
 
-class JointTorqueAndReboot : public JointHandleWithFlag
-{
-public:
-    JointTorqueAndReboot() = default;
+// class JointTorqueAndReboot : public JointHandleWithFlag
+// {
+// public:
+//     JointTorqueAndReboot() = default;
 
-    JointTorqueAndReboot(const JointStateHandle& js, double* torque, bool* torque_flag, bool* reboot_flag)
-    : JointHandleWithFlag(js, torque, torque_flag), reboot_flag_(reboot_flag) 
-    {
-        if (!reboot_flag_)
-            throw hardware_interface::HardwareInterfaceException("Cannot create handle '" + js.getName() + "'. Rebbot flag pointer is null.");
-    }
+//     JointTorqueAndReboot(const JointStateHandle& js, double* torque, bool* torque_flag, bool* reboot_flag)
+//     : JointHandleWithFlag(js, torque, torque_flag), reboot_flag_(reboot_flag) 
+//     {
+//         if (!reboot_flag_)
+//             throw hardware_interface::HardwareInterfaceException("Cannot create handle '" + js.getName() + "'. Rebbot flag pointer is null.");
+//     }
 
-    void setReboot(bool reboot) { assert(reboot_flag_); *reboot_flag_ = reboot; }
-    bool getReboot() { assert(reboot_flag_); return *reboot_flag_; }
+//     void setReboot(bool reboot) { assert(reboot_flag_); *reboot_flag_ = reboot; }
+//     bool getReboot() { assert(reboot_flag_); return *reboot_flag_; }
 
-private:
+// private:
 
-    bool* reboot_flag_ = {nullptr};
+//     bool* reboot_flag_ = {nullptr};
 
-};
+// };
 
-/**
- * @brief Joint that supports activation / deactivation
- * 
- * To keep track of updates to the HW resource we use and additional flag
- * that is set to true when a new command is issued to the servo. The
- * communication loops will use this flag to determine which servos really
- * need to be syncronised and will reset it once the synchronisation is
- * finished.
- */
-class ActiveJointInterface : public hardware_interface::HardwareResourceManager<JointTorqueAndReboot> {};
+// /**
+//  * @brief Joint that supports activation / deactivation
+//  * 
+//  * To keep track of updates to the HW resource we use and additional flag
+//  * that is set to true when a new command is issued to the servo. The
+//  * communication loops will use this flag to determine which servos really
+//  * need to be syncronised and will reset it once the synchronisation is
+//  * finished.
+//  */
+// class ActiveJointInterface : public hardware_interface::HardwareResourceManager<JointTorqueAndReboot> {};
 
 
 // class TempVoltHandle

@@ -286,7 +286,7 @@ public:
      * 
      * @return const mh5_hardware::JointTorqueAndReboot& 
      */
-    const mh5_hardware::JointTorqueAndReboot& getJointActiveHandle() { return jointActiveHandle_; }
+    const mh5_hardware::DynamixelJointControlHandle& getJointControlHandle() { return jointControlHandle_; }
 
 
 protected:
@@ -305,17 +305,18 @@ protected:
     double          position_command_;   /// @brief Desired position in radians
     double          velocity_command_;   /// @brief Desired velocity in radians/s
     bool            poistion_command_flag_;
-    double          active_command_;     /// @brief Desired torque state [0.0 or 1.0]
+    bool            active_command_;     /// @brief Desired torque state [0.0 or 1.0]
     bool            reboot_command_;     /// @brief Reboot command indicator
     bool            active_command_flag_;
 
     //hardware handles
     
-    hardware_interface::JointStateHandle    jointStateHandle_;  /// @brief A handle that provides access to position, velocity and effort
-    mh5_hardware::DynamixelStatusHandle     jointStatusHandle_; /// @brief A handle that provides access to temperature, voltage, activation status and hardware error
-    
+    hardware_interface::JointStateHandle        jointStateHandle_;  /// @brief A handle that provides access to position, velocity and effort
+    mh5_hardware::DynamixelStatusHandle         jointStatusHandle_; /// @brief A handle that provides access to temperature, voltage, activation status and hardware error
+    mh5_hardware::DynamixelJointControlHandle   jointControlHandle_; /// @brief A handle that provides access to desired torque state
+
     hardware_interface::PosVelJointHandle   jointPosVelHandle_; /// @brief A handle that provides access to desired position and desired velocity
-    mh5_hardware::JointTorqueAndReboot      jointActiveHandle_; /// @brief A handle that provides access to desired torque state
+
 
 };
 
