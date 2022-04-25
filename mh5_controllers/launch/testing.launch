@@ -7,11 +7,17 @@
     <param name="robot_description" command="$(find xacro)/xacro $(arg model)" />
 
     <node name="combo_control_node" pkg="mh5_controllers" type="combo_control_node" output="screen"/>
-    <node name="controller_spawner" pkg="controller_manager" type="spawner" respawn="false" output="screen" ns="/"
+    <node name="controller_spawner_state" pkg="controller_manager" type="spawner" respawn="false" output="screen" ns="/"
         args="
              joint_state
              device_status
 
     "/>
-             <!-- device_state -->
+    <node name="controller_spawner_control" pkg="controller_manager" type="spawner" respawn="false" output="screen" ns="/"
+        args="--stopped
+             left_arm_controller
+             right_arm_controller
+             arms_controller
+             head_controller
+    "/>
 </launch>

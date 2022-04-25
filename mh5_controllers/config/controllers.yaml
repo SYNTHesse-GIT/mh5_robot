@@ -2,6 +2,26 @@ joint_state:
   type: joint_state_controller/JointStateController
   publish_rate: 100
 
+device_status:
+  type: mh5_controllers/DeviceStatusController
+
+left_arm_controller:
+  type: mh5_controllers/DynamixelJointController
+  joints: [l_sho_p, l_sho_r, l_elb_y, l_elb_p]
+
+right_arm_controller:
+  type: mh5_controllers/DynamixelJointController
+  joints: [r_sho_p, r_sho_r, r_elb_y, r_elb_p]
+
+arms_controller:
+  type: mh5_controllers/DynamixelJointController
+  joints: [l_sho_p, l_sho_r, l_elb_y, l_elb_p,
+           r_sho_p, r_sho_r, r_elb_y, r_elb_p]
+
+head:
+  type: mh5_controllers/DynamixelJointController
+  joints: [head_p, head_y]
+
 
 dynamixel_control:
   type: pos_vel_controllers/JointTrajectoryController
@@ -42,5 +62,4 @@ imu_state:
   type: imu_sensor_controller/ImuSensorController
   publish_rate: 100
 
-device_status:
-  type: mh5_controllers/DeviceStatusController
+

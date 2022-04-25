@@ -1,7 +1,7 @@
 <library path="lib/libmh5_controllers">
 
-  <class name="mh5_controllers/ActiveJointController"
-         type="mh5_controllers::ActiveJointController"
+  <class name="mh5_controllers/DynamixelJointController"
+         type="mh5_controllers::DynamixelJointController"
          base_class_type="controller_interface::ControllerBase">
     <description>
       Manages the activation / deactivation of torque for servos.

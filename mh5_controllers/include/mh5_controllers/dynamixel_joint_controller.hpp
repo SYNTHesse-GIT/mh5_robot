@@ -10,8 +10,9 @@
 namespace mh5_controllers
 {
 
+typedef forward_command_controller::ForwardJointGroupCommandController<mh5_hardware::DynamixelJointControlInterface>  ExtendedGroupPositionController;
 
-class DynamixelJointController : public forward_command_controller::ForwardJointGroupCommandController<mh5_hardware::DynamixelJointControlInterface>
+class DynamixelJointController : public ExtendedGroupPositionController
 {
 public:
 
@@ -20,7 +21,7 @@ public:
      * mh5_hardware::ActiveJointInterface interface.
      */
     DynamixelJointController()
-    : forward_command_controller::ForwardJointGroupCommandController<mh5_hardware::DynamixelJointControlInterface>() {}
+    : ExtendedGroupPositionController() {}
 
     /**
      * @brief Destroy the Active Joint Controller object. Shuts also down the 
@@ -30,9 +31,9 @@ public:
 
     bool init(mh5_hardware::DynamixelJointControlInterface* hw, ros::NodeHandle &n);
 
-    virtual void starting(const ros::Time& /*time*/) override;
+    // void starting(const ros::Time& /*time*/);
 
-    virtual void stopping(const ros::Time& /*time*/) override;
+    // void stopping(const ros::Time& /*time*/);
 
     void update(const ros::Time& /*time*/, const ros::Duration& /*period*/);
 

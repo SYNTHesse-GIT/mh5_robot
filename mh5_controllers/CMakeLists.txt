@@ -33,6 +33,7 @@ catkin_package(
                  hardware_interface
                  combined_robot_hw
                  joint_trajectory_controller
+                 forward_command_controller
                  mh5_hardware
                  mh5_msgs
                  std_msgs 

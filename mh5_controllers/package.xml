@@ -14,6 +14,7 @@
   <build_depend>mh5_hardware</build_depend>
   <build_depend>mh5_msgs</build_depend>
   <build_depend>joint_trajectory_controller</build_depend>
+  <build_depend>forward_command_controller</build_depend>
   <build_depend>pluginlib</build_depend>
   <build_depend>std_msgs</build_depend>
   <build_depend>message_runtime</build_depend>
@@ -25,6 +26,7 @@
   <build_export_depend>hardware_interface</build_export_depend>
   <build_export_depend>mh5_hardware</build_export_depend>
   <build_export_depend>joint_trajectory_controller</build_export_depend>
+  <build_export_depend>forward_command_controller</build_export_depend>
   <build_export_depend>pluginlib</build_export_depend>
   
   <exec_depend>controller_manager</exec_depend>
@@ -33,6 +35,7 @@
   <exec_depend>mh5_hardware</exec_depend>
   <exec_depend>mh5_msgs</exec_depend>
   <exec_depend>joint_trajectory_controller</exec_depend>
+  <exec_depend>forward_command_controller</exec_depend>
   <exec_depend>std_msgs</exec_depend>
   <exec_depend>message_runtime</exec_depend>
 

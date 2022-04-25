@@ -165,20 +165,20 @@ void DynamixelJointController::update(const ros::Time& /*time*/, const ros::Dura
 
 
 /* activates torque for all joints */
-void DynamixelJointController::starting(const ros::Time& /*time*/)
-{
-    for (auto & handle : joints_) {
-         ((mh5_hardware::DynamixelJointControlHandle&)handle).setActive(true);
-    }
-}
+// void DynamixelJointController::starting(const ros::Time& /*time*/)
+// {
+//     for (auto & handle : joints_) {
+//          ((mh5_hardware::DynamixelJointControlHandle&)handle).setActive(true);
+//     }
+// }
 
 
-void DynamixelJointController::stopping(const ros::Time& /*time*/)
-{
-    for (auto & handle: joints_) {
-         ((mh5_hardware::DynamixelJointControlHandle&)handle).setActive(false);
-    }
-}
+// void DynamixelJointController::stopping(const ros::Time& /*time*/)
+// {
+//     for (auto & handle: joints_) {
+//          ((mh5_hardware::DynamixelJointControlHandle&)handle).setActive(false);
+//     }
+// }
 
 
 
