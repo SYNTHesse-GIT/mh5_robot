@@ -106,7 +106,12 @@ void Joint::initRegisters()
     writeRegister(84, 2, 1280, TRIES);       // Position P Gain
     writeRegister(88, 2, 0, TRIES);         // FF 2nd Gain
     writeRegister(90, 2, 0, TRIES);         // FF 1st Gain
-
+    // INDIRECT REGISTERS
+    writeRegister(168, 2, 64, TRIES);        // torque status (64)
+    writeRegister(170, 2, 70, TRIES);       // HW error (70)
+    writeRegister(172, 2, 144, TRIES);      // voltage L
+    writeRegister(174, 2, 145, TRIES);      // voltage H
+    writeRegister(176, 2, 146, TRIES);      // temperature
     // initilizes the active members to avoid issues later when the syncs start
     active_command_ = 0.0;
     active_state_ = 0.0;

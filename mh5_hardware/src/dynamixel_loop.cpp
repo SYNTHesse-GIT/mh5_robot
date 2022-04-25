@@ -132,20 +132,36 @@ bool StatusReader::afterCommunication(std::vector<Joint *> joints)
                       name, id, getPacketHandler()->getRxPacketError(dxl_error));
             continue;
         }
+        // torque status
+        dxl_getdata_result = isAvailable(id, 224, 1);
+        if (!dxl_getdata_result)
+            ROS_DEBUG("[%s] SyncRead getting torque status for ID %d failed", name, id);
+        else {
+            bool active = (bool)getData(id, 224, 1);
+            joint->setActive(active);
+        }
+        // HW Error
+        dxl_getdata_result = isAvailable(id, 225, 1);
+        if (!dxl_getdata_result)
+            ROS_DEBUG("[%s] SyncRead getting HW error for ID %d failed", name, id);
+        else {
+            int hwerr = (bool)getData(id, 225, 1);
+            joint->setHWEror(hwerr);
+        }
         //voltage
-        dxl_getdata_result = isAvailable(id, 144, 2);
+        dxl_getdata_result = isAvailable(id, 226, 2);
         if (!dxl_getdata_result)
             ROS_DEBUG("[%s] SyncRead getting voltage for ID %d failed", name, id);
         else {
-            int16_t voltage = getData(id, 144, 2);
+            int16_t voltage = getData(id, 226, 2);
             joint->setVoltageFromRaw(voltage);
         }
         //temperature
-        dxl_getdata_result = isAvailable(id, 146, 1);
+        dxl_getdata_result = isAvailable(id, 228, 1);
         if (!dxl_getdata_result)
             ROS_DEBUG("[%s] SyncRead getting temperature for ID %d failed", name, id);
         else {
-            int8_t temperature = getData(id, 146,1);
+            int8_t temperature = getData(id, 228,1);
             joint->setTemperatureFromRaw(temperature);
         }
     }

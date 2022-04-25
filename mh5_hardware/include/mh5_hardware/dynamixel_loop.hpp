@@ -396,8 +396,8 @@ class StatusReader : public GroupSyncRead
 {
 public:
     /**
-     * @brief Construct a new TVReader object. Uses 144 as the start of the address
-     * and 3 as the data_lenght
+     * @brief Construct a new TVReader object. Uses indirect address from 224
+     * as the start of the address and 5 as the data_lenght
      * 
      * @param name the name of the loop; used for messages and for registering resources
      * @param loop_rate the rate the loop will be expected to run
@@ -405,7 +405,7 @@ public:
      * @param ph the dynamixel::PacketHandler needed for communication 
      */
     StatusReader(const std::string& name, double loop_rate, dynamixel::PortHandler *port, dynamixel::PacketHandler *ph)
-    : GroupSyncRead(name, loop_rate, port, ph, 144, 3) {}
+    : GroupSyncRead(name, loop_rate, port, ph, 224, 5) {}
 
     /**
      * @brief Postprocessing of data after communication, specific to the temperature,
