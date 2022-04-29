@@ -126,11 +126,14 @@ protected:
 
 
     //interfaces
-    hardware_interface::JointStateInterface      joint_state_interface;
-    mh5_hardware::DynamixelStatusInterface       joint_status_interface;
-    hardware_interface::PosVelJointInterface     pos_vel_joint_interface;
-    mh5_hardware::DynamixelJointControlInterface joint_control_interface;
-    mh5_hardware::CommunicationStatsInterface    communication_stats_interface;
+    hardware_interface::JointStateInterface      joint_state_interface;             // for JointStateController
+    mh5_hardware::DynamixelStatusInterface       joint_status_interface;            // for DeviceStatusController
+    hardware_interface::PositionJointInterface   position_joint_interface;          // for JointGroupPositionController
+    mh5_hardware::DynamixelJointControlInterface joint_control_interface;           // for DynamixelControlInterface
+
+    hardware_interface::PosVelJointInterface     pos_vel_joint_interface;           // for JointTrajectoryController
+
+    mh5_hardware::CommunicationStatsInterface    communication_stats_interface;     // for CommunicationStatsController
     mh5_hardware::VoltCurrInterface              sensor_volt_curr_interface;
 
     int                         num_joints_;

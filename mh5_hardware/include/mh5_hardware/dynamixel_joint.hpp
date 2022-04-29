@@ -270,9 +270,16 @@ public:
     /**
      * @brief Returns the handle to the joint status interface object for this joint
      * 
-     * @return const hardware_interface::JointStatusHandle& 
+     * @return const mh5_hardware::DynamixelStatusHandle& 
      */
     const mh5_hardware::DynamixelStatusHandle& getJointStatusHandle() { return jointStatusHandle_; }
+
+    /**
+     * @brief Returns the handle to the joint position control interface object 
+     * 
+     * @return const hardware_interface::JointStatusHandle& 
+     */
+    const hardware_interface::JointHandle& getJointPositionHandle() { return jointPositionHandle_; }
 
     /**
      * @brief Returns the handle to the joint position / velocity command interface object for this joint
@@ -313,6 +320,7 @@ protected:
     
     hardware_interface::JointStateHandle        jointStateHandle_;  /// @brief A handle that provides access to position, velocity and effort
     mh5_hardware::DynamixelStatusHandle         jointStatusHandle_; /// @brief A handle that provides access to temperature, voltage, activation status and hardware error
+    hardware_interface::JointHandle             jointPositionHandle_; /// @brief A hadle for commanding the position of a joint
     mh5_hardware::DynamixelJointControlHandle   jointControlHandle_; /// @brief A handle that provides access to desired torque state
 
     hardware_interface::PosVelJointHandle   jointPosVelHandle_; /// @brief A handle that provides access to desired position and desired velocity

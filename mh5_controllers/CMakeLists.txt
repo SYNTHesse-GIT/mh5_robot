@@ -7,6 +7,7 @@ find_package(catkin REQUIRED COMPONENTS
   combined_robot_hw
   joint_trajectory_controller
   forward_command_controller
+  position_controllers
   pluginlib
   mh5_hardware
   mh5_msgs
@@ -34,6 +35,7 @@ catkin_package(
                  combined_robot_hw
                  joint_trajectory_controller
                  forward_command_controller
+                 position_controllers
                  mh5_hardware
                  mh5_msgs
                  std_msgs 
@@ -48,7 +50,7 @@ include_directories(
 
 add_library(mh5_controllers
     # src/extended_trajectory_controller.cpp
-    src/dynamixel_joint_controller.cpp
+    src/dynamixel_position_controller.cpp
     src/communication_stats_controller.cpp
     src/device_status_controller.cpp
 )

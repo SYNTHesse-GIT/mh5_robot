@@ -18,8 +18,8 @@ arms_controller:
   joints: [l_sho_p, l_sho_r, l_elb_y, l_elb_p,
            r_sho_p, r_sho_r, r_elb_y, r_elb_p]
 
-head:
-  type: mh5_controllers/DynamixelJointController
+head_controller:
+  type: mh5_controllers/DynamixelPositionController
   joints: [head_p, head_y]
 
 

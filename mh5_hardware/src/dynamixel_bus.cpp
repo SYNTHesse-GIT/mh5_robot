@@ -33,10 +33,13 @@ bool MH5DynamixelBus::init(ros::NodeHandle& root_nh, ros::NodeHandle& robot_hw_n
         //State
         joint_state_interface.registerHandle(joints_[i]->getJointStateHandle());
         joint_status_interface.registerHandle(joints_[i]->getJointStatusHandle());
+        // control
+        position_joint_interface.registerHandle(joints_[i]->getJointPositionHandle());
+        joint_control_interface.registerHandle(joints_[i]->getJointControlHandle());
         //Command Postion - Velocity
         pos_vel_joint_interface.registerHandle(joints_[i]->getJointPosVelHandle());
         //Torque activation
-        joint_control_interface.registerHandle(joints_[i]->getJointControlHandle());
+
 
         // joint_temp_volt_interface.registerHandle(joints_[i]->getTempVoltHandle());
     }
@@ -46,11 +49,15 @@ bool MH5DynamixelBus::init(ros::NodeHandle& root_nh, ros::NodeHandle& robot_hw_n
     }
 
     //Register interfaces
+    // joint publishers
     registerInterface(&joint_state_interface);
     registerInterface(&joint_status_interface);
-    // registerInterface((hardware_interface::JointStateInterface*)&joint_state_interface); // for joint_state_controller
-    registerInterface(&pos_vel_joint_interface);
+    // joint controllers
+    registerInterface(&position_joint_interface);
     registerInterface(&joint_control_interface);
+
+    registerInterface(&pos_vel_joint_interface);
+
     // registerInterface(&joint_temp_volt_interface);
     registerInterface(&sensor_volt_curr_interface);
 
