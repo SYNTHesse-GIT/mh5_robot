@@ -62,15 +62,13 @@ bool Joint::isActive(bool refresh)
 
 
 
-bool Joint::torqueOn()
+bool Joint::changeTorque(bool new_state)
 {
-    return writeRegister(64, 1, 1, TRIES);
-}
-
-
-bool Joint::torqueOff()
-{
-    return writeRegister(64, 1, 0, TRIES);
+    if (writeRegister(64, 1, (int)new_state, TRIES)) {
+        active_state_ = new_state;
+        return true;
+    }
+    return false;
 }
 
 
@@ -116,6 +114,6 @@ void Joint::initRegisters()
     // initilizes the active members to avoid issues later when the syncs start
     active_command_ = 0.0;
     active_state_ = 0.0;
-    active_command_flag_ = false;
-    reboot_command_ = false;
+    // active_command_flag_ = false;
+    // reboot_command_ = false;
 }

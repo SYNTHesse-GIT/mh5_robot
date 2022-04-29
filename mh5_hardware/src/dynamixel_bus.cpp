@@ -141,7 +141,7 @@ bool MH5DynamixelBus::initJoints()
         if(j->isPresent() && j->isActive(true)) {
             ROS_INFO("[%s] torqe is enabled for %s [%d]; it will be disabled to allow configuration of servos",
                      nh_.getNamespace().c_str(), j->name().c_str(), j->id());
-            if(!j->torqueOff()) {
+            if(!j->changeTorque(false)) {
                 ROS_ERROR("[%s] failed to reset torque status for %s [%d]",
                           nh_.getNamespace().c_str(), j->name().c_str(), j->id());
                 continue;

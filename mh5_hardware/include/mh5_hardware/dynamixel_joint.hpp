@@ -120,41 +120,18 @@ public:
 
     void setHWEror(int hwerr) { hwerr_state_ = hwerr; }
 
-    /**
-     * @brief Sets torque on for the joint. Forces writing 1 in the register
-     * 64 of the servo.
-     * 
-     * @return true if the activation was successfull
-     * @return false if there was an error (communication or hardware)
-     */
-    bool torqueOn();
+    bool getTorqueCommand() { return active_command_; }
 
-    /**
-     * @brief Sets torque off for the joint. Forces writing 0 in the register
-     * 64 of the servo.
-     * 
-     * @return true if the deactivation was successfull
-     * @return false if there was an error (communication or hardware)
-     */
-    bool torqueOff();
+    bool changeTorque(bool new_state);
 
-    /**
-     * @brief Indicates if there was a command to change the torque that
-     * was not yet completed. It simply returns the active_command_flag_
-     * member that should be set whenever a controllers wants to switch
-     * the torque status and sets the active_command_.
-     * 
-     * @return true there is a command that was not syncronised to hardware
-     * @return false there is no change in the status
-     */
-    bool shouldToggleTorque() { return active_command_flag_;}
+    bool shouldChangeTorque() { return active_command_ != active_state_;}
 
-    /**
-     * @brief Resets to false the active_command_flag_. Normally 
-     * used by the sync loops after successful processing of an
-     * update.
-     */
-    void resetActiveCommandFlag() { active_command_flag_ = false;}
+    // /**
+    //  * @brief Resets to false the active_command_flag_. Normally 
+    //  * used by the sync loops after successful processing of an
+    //  * update.
+    //  */
+    // void resetActiveCommandFlag() { active_command_flag_ = false;}
 
     // /**
     //  * @brief Changes the torque by writing into register 64 in the hardware
@@ -311,10 +288,10 @@ protected:
     //commands
     double          position_command_;   /// @brief Desired position in radians
     double          velocity_command_;   /// @brief Desired velocity in radians/s
-    bool            poistion_command_flag_;
+    // bool            poistion_command_flag_;
     bool            active_command_;     /// @brief Desired torque state [0.0 or 1.0]
     bool            reboot_command_;     /// @brief Reboot command indicator
-    bool            active_command_flag_;
+    // bool            active_command_flag_;
 
     //hardware handles
     
