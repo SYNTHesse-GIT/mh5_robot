@@ -26,7 +26,7 @@ include_directories(
 )
 
 add_library(mh5_hardware 
-    src/dynamixel_interface.cpp
+    src/dynamixel_bus.cpp
     src/dynamixel_device.cpp
     src/dynamixel_joint.cpp
     src/foot_sensor.cpp

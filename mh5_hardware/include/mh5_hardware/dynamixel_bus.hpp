@@ -34,19 +34,19 @@ namespace mh5_hardware
  * 
  *      PLUGINLIB_EXPORT_CLASS(mh5_hardware::MH5DynamixelInterface, hardware_interface::RobotHW)
  */
-class MH5DynamixelInterface: public hardware_interface::RobotHW
+class MH5DynamixelBus: public hardware_interface::RobotHW
 {
 public:
     /** Construct a new MH5DynamixelInterface object. Default constructor 
      * to support ``pluginlib``.
      */
-    MH5DynamixelInterface();
+    MH5DynamixelBus();
 
     /**
      * @brief Destroy the MH5DynamixelInterface object. Provided for 
      * ``pluginlib`` support.
      */
-    ~MH5DynamixelInterface();
+    ~MH5DynamixelBus();
 
     /**
      * @brief Initializes the interface.
@@ -116,7 +116,7 @@ protected:
     /// @brief Sync Loop for reading the position, velocity and load
     mh5_hardware::PVLReader *pvlReader_;
     /// @brief Sync Loop for reading the temperature and voltage
-    mh5_hardware::TVReader  *tvReader_;
+    mh5_hardware::StatusReader  *statusReader_;
 
     // Write Loops
     /// @brief SyncLoop for writing the position and velocity
@@ -126,12 +126,15 @@ protected:
 
 
     //interfaces
-    hardware_interface::JointStateInterface     joint_state_interface;
-    hardware_interface::PosVelJointInterface    pos_vel_joint_interface;
-    mh5_hardware::ActiveJointInterface          active_joint_interface;
-    mh5_hardware::CommunicationStatsInterface   communication_stats_interface;
-    mh5_hardware::TempVoltInterface             joint_temp_volt_interface;
-    mh5_hardware::VoltCurrInterface             sensor_volt_curr_interface;
+    hardware_interface::JointStateInterface      joint_state_interface;             // for JointStateController
+    mh5_hardware::DynamixelStatusInterface       joint_status_interface;            // for DeviceStatusController
+    hardware_interface::PositionJointInterface   position_joint_interface;          // for JointGroupPositionController
+    mh5_hardware::DynamixelJointControlInterface joint_control_interface;           // for DynamixelControlInterface
+
+    hardware_interface::PosVelJointInterface     pos_vel_joint_interface;           // for JointTrajectoryController
+
+    mh5_hardware::CommunicationStatsInterface    communication_stats_interface;     // for CommunicationStatsController
+    mh5_hardware::VoltCurrInterface              sensor_volt_curr_interface;
 
     int                         num_joints_;
     std::vector<Joint *>        joints_;

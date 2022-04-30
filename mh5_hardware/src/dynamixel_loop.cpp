@@ -10,7 +10,7 @@ bool GroupSyncRead::prepare(std::vector<Joint *> joints)
 {
     bool params_added = false;
     for (auto & joint : joints) {
-        if (joint->present()) {
+        if (joint->isPresent()) {
             if(!addParam(joint->id()))
                 ROS_WARN("Failed to add servo ID %d to loop %s", joint->id(), getName().c_str());
             else
@@ -25,7 +25,7 @@ bool GroupSyncRead::prepare(std::vector<Joint *> joints)
 }
 
 
-bool GroupSyncRead::Communicate()
+bool GroupSyncRead::Communicate(std::vector<Joint *> joints)
 {
     int dxl_comm_result = txRxPacket();
 
@@ -42,7 +42,7 @@ bool GroupSyncRead::Communicate()
 /******************/
 /* GroupSyncWrite */
 /******************/
-bool GroupSyncWrite::Communicate()
+bool GroupSyncWrite::Communicate(std::vector<Joint *> joints)
 {
     int dxl_comm_result = txPacket();
 
@@ -69,7 +69,7 @@ bool PVLReader::afterCommunication(std::vector<Joint *> joints)
         const char* name = getName().c_str();   // for messsages
         uint8_t id = joint->id();                // to avoid callling it all the time...
 
-        if (!joint->present())                   //only present servos
+        if (!joint->isPresent())                   //only present servos
             continue;
         
         // check no errors
@@ -112,7 +112,7 @@ bool PVLReader::afterCommunication(std::vector<Joint *> joints)
 /******************/
 /* TVReader       */
 /******************/
-bool TVReader::afterCommunication(std::vector<Joint *> joints)
+bool StatusReader::afterCommunication(std::vector<Joint *> joints)
 {
     uint8_t dxl_error = 0;                            // Dynamixel error
     bool dxl_getdata_result = false;                  // GetParam result
@@ -123,7 +123,7 @@ bool TVReader::afterCommunication(std::vector<Joint *> joints)
         const char* name = getName().c_str();   // for messsages
         uint8_t id = joint->id();                // to avoid callling it all the time...
 
-        if (!joint->present())                   //only present servos
+        if (!joint->isPresent())                   //only present servos
             continue;
         
         // check no errors
@@ -132,20 +132,36 @@ bool TVReader::afterCommunication(std::vector<Joint *> joints)
                       name, id, getPacketHandler()->getRxPacketError(dxl_error));
             continue;
         }
+        // torque status
+        dxl_getdata_result = isAvailable(id, 224, 1);
+        if (!dxl_getdata_result)
+            ROS_DEBUG("[%s] SyncRead getting torque status for ID %d failed", name, id);
+        else {
+            bool active = (bool)getData(id, 224, 1);
+            joint->setActive(active);
+        }
+        // HW Error
+        dxl_getdata_result = isAvailable(id, 225, 1);
+        if (!dxl_getdata_result)
+            ROS_DEBUG("[%s] SyncRead getting HW error for ID %d failed", name, id);
+        else {
+            int hwerr = (bool)getData(id, 225, 1);
+            joint->setHWEror(hwerr);
+        }
         //voltage
-        dxl_getdata_result = isAvailable(id, 144, 2);
+        dxl_getdata_result = isAvailable(id, 226, 2);
         if (!dxl_getdata_result)
             ROS_DEBUG("[%s] SyncRead getting voltage for ID %d failed", name, id);
         else {
-            int16_t voltage = getData(id, 144, 2);
+            int16_t voltage = getData(id, 226, 2);
             joint->setVoltageFromRaw(voltage);
         }
         //temperature
-        dxl_getdata_result = isAvailable(id, 146, 1);
+        dxl_getdata_result = isAvailable(id, 228, 1);
         if (!dxl_getdata_result)
             ROS_DEBUG("[%s] SyncRead getting temperature for ID %d failed", name, id);
         else {
-            int8_t temperature = getData(id, 146,1);
+            int8_t temperature = getData(id, 228,1);
             joint->setTemperatureFromRaw(temperature);
         }
     }
@@ -153,6 +169,7 @@ bool TVReader::afterCommunication(std::vector<Joint *> joints)
     // even if there are errors
     return true;
 }
+
 
 
 /******************/
@@ -170,7 +187,7 @@ bool PVWriter::beforeCommunication(std::vector<Joint *> joints)
     
     for (auto & joint : joints)
     {
-        if (joint->present())
+        if (joint->isPresent())
         {
             int32_t p = joint->getRawPositionFromCommand();
             uint32_t vp = joint->getVelocityProfileFromCommand();
@@ -208,49 +225,44 @@ bool PVWriter::beforeCommunication(std::vector<Joint *> joints)
 /******************/
 /* TWriter        */
 /******************/
-bool TWriter::beforeCommunication(std::vector<Joint *> joints)
+bool TWriter::Communicate(std::vector<Joint *> joints)
 {
+    decPackets();       // b ecause the Execute has increased already once
     // handle reboot
     for (auto & joint: joints)
     {
-        if (joint->present() && joint->shouldReboot()) {
-            if(joint->reboot(5)) {
-                ROS_INFO("joint %s [%d] rebooted", joint->name().c_str(), joint->id());
-                joint->resetRebootCommandFlag();
-            }
-            else {
-                ROS_ERROR("joint %s [%d] failed to reboot", joint->name().c_str(), joint->id());
-                // we do the reset of the command to force the user to reissue the command
-                joint->resetRebootCommandFlag();
+        if (joint->isPresent() && joint->shouldReboot()) {
+            for (int n=0; n<5; n++) {
+                bool res = joint->reboot(1);
+                incPackets();
+                if (res) {
+                    ROS_INFO("joint %s [%d] rebooted", joint->name().c_str(), joint->id());
+                    break;
+                }
+                else {
+                    ROS_ERROR("joint %s [%d] failed to reboot", joint->name().c_str(), joint->id());
+                    incErrors();
+                }
             }
         }
     }
-
-    // handle torque changes
-    uint8_t command[1];
-
-    bool dxl_addparam_result = false;                 // addParam result
-    bool param_added = false;                         // at least one param added
-
-    clearParam();
     
     for (auto & joint : joints)
     {
-        if (joint->present() && joint->shouldToggleTorque())
-        {
-            command[0] = joint->getRawTorqueActiveFromCommand();
-            // addParam
-            dxl_addparam_result = addParam(joint->id(), command);
-            if (dxl_addparam_result != true) {
-                ROS_ERROR("Failed to add servo ID %d to loop %s", joint->id(), getName().c_str());
-                continue;
-            }
-            else {
-                param_added = true;
-                joint->resetActiveCommandFlag();
-                ROS_INFO("will toggle torque for %s to %d", joint->name().c_str(), *command);
+        if (joint->isPresent() && joint->shouldChangeTorque()) {
+            for (int n=0; n<5; n++) {
+                bool res = joint->changeTorque(joint->getTorqueCommand());
+                incPackets();
+                if (res) {
+                    ROS_INFO("joint %s [%d] torque set to %d", joint->name().c_str(), joint->id(), joint->getTorqueCommand());
+                    break;
+                }
+                else {
+                    ROS_ERROR("joint %s [%d] failed to change torque to %d", joint->name().c_str(), joint->id(), joint->getTorqueCommand());
+                    incErrors();
+                }
             }
         }
     }
-    return param_added;
+    return true;
 }

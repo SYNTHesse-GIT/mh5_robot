@@ -1,0 +1,21 @@
+<launch>
+    <rosparam file="$(find mh5_controllers)/config/controllers.yaml" command="load"/>
+    <rosparam file="$(find mh5_hardware)/config/hardware.yaml" command="load"/>
+
+    <arg name="model" default="$(find mh5_description)/urdf/mh5_robot_revC.xacro"/>
+
+    <param name="robot_description" command="$(find xacro)/xacro $(arg model)" />
+
+    <node name="combo_control_node" pkg="mh5_controllers" type="combo_control_node" output="screen"/>
+    <node name="controller_spawner_state" pkg="controller_manager" type="spawner" respawn="false" output="screen" ns="/"
+        args="
+             joint_state
+             device_status
+
+    "/>
+    <node name="controller_spawner_control" pkg="controller_manager" type="spawner" respawn="false" output="screen" ns="/"
+        args="--stopped
+             head_controller
+             arms_controller
+    "/>
+</launch>

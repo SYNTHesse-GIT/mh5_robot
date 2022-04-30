@@ -1,7 +1,7 @@
 
 #include <pluginlib/class_list_macros.hpp>
 
-#include "mh5_hardware/dynamixel_interface.hpp"
+#include "mh5_hardware/dynamixel_bus.hpp"
 // #include "mh5_hardware/active_joint_interface.hpp"
 #include "mh5_hardware/dynamixel_joint.hpp"
 
@@ -9,38 +9,39 @@ using namespace mh5_hardware;
 
 
 
-MH5DynamixelInterface::MH5DynamixelInterface(){
+MH5DynamixelBus::MH5DynamixelBus(){
 }
 
 
-MH5DynamixelInterface::~MH5DynamixelInterface(){
+MH5DynamixelBus::~MH5DynamixelBus(){
     ROS_INFO("Interface closed");
 }
 
 
-bool MH5DynamixelInterface::init(ros::NodeHandle& root_nh, ros::NodeHandle& robot_hw_nh)
+bool MH5DynamixelBus::init(ros::NodeHandle& root_nh, ros::NodeHandle& robot_hw_nh)
 {
     nh_ = robot_hw_nh;
     nss_ = nh_.getNamespace().c_str();     // to avoid calling it all the time
     
     if (!initPort()) return false;
-
     if (!initJoints()) return false;
-
     if (!initSensors()) return false;
-
     if (!setupDynamixelLoops()) return false;
 
     //Register handles
     for(int i=0; i<num_joints_; i++){
         //State
         joint_state_interface.registerHandle(joints_[i]->getJointStateHandle());
+        joint_status_interface.registerHandle(joints_[i]->getJointStatusHandle());
+        // control
+        position_joint_interface.registerHandle(joints_[i]->getJointPositionHandle());
+        joint_control_interface.registerHandle(joints_[i]->getJointControlHandle());
         //Command Postion - Velocity
         pos_vel_joint_interface.registerHandle(joints_[i]->getJointPosVelHandle());
         //Torque activation
-        active_joint_interface.registerHandle(joints_[i]->getJointActiveHandle());
 
-        joint_temp_volt_interface.registerHandle(joints_[i]->getTempVoltHandle());
+
+        // joint_temp_volt_interface.registerHandle(joints_[i]->getTempVoltHandle());
     }
 
     for (int i=0; i<num_sensors_; i++) {
@@ -48,10 +49,16 @@ bool MH5DynamixelInterface::init(ros::NodeHandle& root_nh, ros::NodeHandle& robo
     }
 
     //Register interfaces
+    // joint publishers
     registerInterface(&joint_state_interface);
+    registerInterface(&joint_status_interface);
+    // joint controllers
+    registerInterface(&position_joint_interface);
+    registerInterface(&joint_control_interface);
+
     registerInterface(&pos_vel_joint_interface);
-    registerInterface(&active_joint_interface);
-    registerInterface(&joint_temp_volt_interface);
+
+    // registerInterface(&joint_temp_volt_interface);
     registerInterface(&sensor_volt_curr_interface);
 
     //return true for successful init or ComboRobotHW initialisation will fail
@@ -59,7 +66,7 @@ bool MH5DynamixelInterface::init(ros::NodeHandle& root_nh, ros::NodeHandle& robo
 }
 
 
-bool MH5DynamixelInterface::initPort()
+bool MH5DynamixelBus::initPort()
 {
     // get the serial port configuration
     if (!nh_.getParam("port", port_)) {
@@ -102,7 +109,7 @@ bool MH5DynamixelInterface::initPort()
 }
 
 
-bool MH5DynamixelInterface::initJoints()
+bool MH5DynamixelBus::initJoints()
 {
     //get joint names and num of joint
     std::vector<std::string>    joint_names;
@@ -131,10 +138,10 @@ bool MH5DynamixelInterface::initJoints()
         // because both axles' torque needs to be turned off in order to update
         // the registers; we first scan all the servos and disable torque if
         // necessary
-        if(j->present() && j->isActive(true)) {
+        if(j->isPresent() && j->isActive(true)) {
             ROS_INFO("[%s] torqe is enabled for %s [%d]; it will be disabled to allow configuration of servos",
                      nh_.getNamespace().c_str(), j->name().c_str(), j->id());
-            if(!j->torqueOff()) {
+            if(!j->changeTorque(false)) {
                 ROS_ERROR("[%s] failed to reset torque status for %s [%d]",
                           nh_.getNamespace().c_str(), j->name().c_str(), j->id());
                 continue;
@@ -146,7 +153,7 @@ bool MH5DynamixelInterface::initJoints()
     // now we can initialize the registers
     for (int i=0; i < num_joints_; i++) 
     {
-        if (joints_[i]->present()) {
+        if (joints_[i]->isPresent()) {
             joints_[i]->initRegisters();
             ROS_INFO("[%s] joint %s [%d] initialized", nh_.getNamespace().c_str(),
                      joints_[i]->name().c_str(), joints_[i]->id());
@@ -157,7 +164,7 @@ bool MH5DynamixelInterface::initJoints()
 }
 
 
-bool MH5DynamixelInterface::initSensors()
+bool MH5DynamixelBus::initSensors()
 {
     //get sensor names and num of sensors
     std::vector<std::string>    sensor_names;
@@ -200,12 +207,12 @@ bool MH5DynamixelInterface::initSensors()
 
 
 template <class Loop>
-Loop* MH5DynamixelInterface::setupLoop(std::string name, const double default_rate)
+Loop* MH5DynamixelBus::setupLoop(std::string name, const double default_rate)
 {
     double rate;
-    if (!nh_.getParam("rates/"+name, rate)) 
+    if (!nh_.getParam("loop_rates/"+name, rate)) 
     {
-        ROS_INFO("[%s] loop %s no 'rates/%s' available, default to %.1f Hz", nss_, name.c_str(),
+        ROS_INFO("[%s] loop %s no 'loop_rates/%s' available, default to %.1f Hz", nss_, name.c_str(),
                   name.c_str(), default_rate);
         rate = default_rate;
     }
@@ -219,13 +226,13 @@ Loop* MH5DynamixelInterface::setupLoop(std::string name, const double default_ra
 }
 
 
-bool MH5DynamixelInterface::setupDynamixelLoops()
+bool MH5DynamixelBus::setupDynamixelLoops()
 {
     // Position, Velocity, Load (PVL) Reader
     pvlReader_ = setupLoop<mh5_hardware::PVLReader>("pvl_reader", 100.0);
 
     // Temperature, Voltage (TV) Reader
-    tvReader_ = setupLoop<mh5_hardware::TVReader>("tv_reader", 1.0);
+    statusReader_ = setupLoop<mh5_hardware::StatusReader>("stat_reader", 1.0);
 
     // Positon, Velocity (PV) Writer
     pvWriter_ = setupLoop<mh5_hardware::PVWriter>("pv_writer", 100.0);
@@ -244,14 +251,14 @@ bool MH5DynamixelInterface::setupDynamixelLoops()
 
 
 
-void MH5DynamixelInterface::read(const ros::Time& time, const ros::Duration& period)
+void MH5DynamixelBus::read(const ros::Time& time, const ros::Duration& period)
 {
     pvlReader_->Execute(time, period, joints_);
-    tvReader_->Execute(time, period, joints_);
+    statusReader_->Execute(time, period, joints_);
 }
 
 
-void MH5DynamixelInterface::write(const ros::Time& time, const ros::Duration& period)
+void MH5DynamixelBus::write(const ros::Time& time, const ros::Duration& period)
 {
     pvWriter_->Execute(time, period, joints_);
     tWriter_->Execute(time, period, joints_);
@@ -259,4 +266,4 @@ void MH5DynamixelInterface::write(const ros::Time& time, const ros::Duration& pe
 
 
 
-PLUGINLIB_EXPORT_CLASS(mh5_hardware::MH5DynamixelInterface, hardware_interface::RobotHW)
+PLUGINLIB_EXPORT_CLASS(mh5_hardware::MH5DynamixelBus, hardware_interface::RobotHW)

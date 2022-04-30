@@ -135,7 +135,7 @@ public:
                 return false;
             
             incPackets();
-            bool result = Communicate();
+            bool result = Communicate(joints);
             if (!result) {
                 incErrors();
                 return false;
@@ -152,7 +152,7 @@ public:
      * @return true the communication was successfull
      * @return false the communication was not successfull
      */
-    virtual bool Communicate() = 0;
+    virtual bool Communicate(std::vector<Joint *> joints) = 0;
 
     /**
      * @brief This is an activity that needs to be performed each time in the
@@ -211,6 +211,7 @@ protected:
      * total packets.
      */
     void incPackets()   { packets_++; tot_packets_++;}
+    void decPackets()   { packets_--; tot_packets_--;}
 
     /**
      * @brief Convenience method to increment the number of errors and
@@ -285,8 +286,20 @@ public:
      * @return true if the communication was successful
      * @return false if there was a communication error
      */
-    bool Communicate() override;
+    bool Communicate(std::vector<Joint *> joints) override;
 };
+
+/**
+ * @brief A specialization of the loop using a Dynamixel GroupSyncRead. Intended for
+ * reading data from a group of dynamixels.
+ * 
+ * This specialization needs a start address and a data length that the loop will
+ * handle, implements the prepare() method that calls addParam() for all IDs of
+ * joints that are marked as "present" and provides a specific implementation of
+ * the Communicate() method.
+ * 
+ */
+
 
 
 /**
@@ -336,7 +349,7 @@ public:
      * @return true if the communication was successful
      * @return false if there was a communication error
      */
-    bool Communicate() override;
+    bool Communicate(std::vector<Joint *> joints) override;
 };
 
 
@@ -380,20 +393,20 @@ public:
  * registers for XL430 Dynamixel series: present temperature, present voltage,
  * (hence the name TV).
  */
-class TVReader : public GroupSyncRead
+class StatusReader : public GroupSyncRead
 {
 public:
     /**
-     * @brief Construct a new TVReader object. Uses 144 as the start of the address
-     * and 3 as the data_lenght
+     * @brief Construct a new TVReader object. Uses indirect address from 224
+     * as the start of the address and 5 as the data_lenght
      * 
      * @param name the name of the loop; used for messages and for registering resources
      * @param loop_rate the rate the loop will be expected to run
      * @param port the dynamixel::PortHandler needed for the communication
      * @param ph the dynamixel::PacketHandler needed for communication 
      */
-    TVReader(const std::string& name, double loop_rate, dynamixel::PortHandler *port, dynamixel::PacketHandler *ph)
-    : GroupSyncRead(name, loop_rate, port, ph, 144, 3) {}
+    StatusReader(const std::string& name, double loop_rate, dynamixel::PortHandler *port, dynamixel::PacketHandler *ph)
+    : GroupSyncRead(name, loop_rate, port, ph, 224, 5) {}
 
     /**
      * @brief Postprocessing of data after communication, specific to the temperature,
@@ -407,6 +420,8 @@ public:
      */
     bool afterCommunication(std::vector<Joint *> joints) override;
 };
+
+
 
 
 /**
@@ -453,11 +468,11 @@ public:
  * register for XL430 Dynamixel series. It will only syncronize devices
  * that have changed (ex. the shouldToggleTorque() returns ``true``).
  */
-class TWriter : public GroupSyncWrite
+class TWriter : public LoopWithCommunicationStats
 {
 public:
     TWriter(const std::string& name, double loop_rate, dynamixel::PortHandler *port, dynamixel::PacketHandler *ph)
-    : GroupSyncWrite(name, loop_rate, port, ph, 64, 1) {}
+    : LoopWithCommunicationStats(name, loop_rate), port_(port), ph_(ph) {}
 
     /**
      * @brief For each joint checks if the active state has changed (the controller
@@ -469,7 +484,15 @@ public:
      * @return true if there is at least one joint that has been added to the loop
      * @return false if no joints were added to the loop
      */
-    bool beforeCommunication(std::vector<Joint *> joints) override;
+    bool Communicate(std::vector<Joint *> joints);
+
+    bool prepare(std::vector<Joint *> joints) { return true;}
+    bool beforeCommunication(std::vector<Joint *> joints) { return true;}
+    bool afterCommunication(std::vector<Joint *> joints) { return true;}
+
+private:
+    dynamixel::PortHandler*     port_;
+    dynamixel::PacketHandler*   ph_;
 };
 
 } //namespace

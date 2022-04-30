@@ -38,9 +38,11 @@ void Joint::fromParam(ros::NodeHandle& nh, std::string& name, mh5_port_handler::
 
     // setup hardware handles
     jointStateHandle_ = hardware_interface::JointStateHandle(name_, &position_state_, &velocity_state_, &effort_state_);
+    jointStatusHandle_ = mh5_hardware::DynamixelStatusHandle(name_, &temperature_state_, &voltage_state_, &active_state_, &hwerr_state_);
+    jointPositionHandle_ = hardware_interface::JointHandle(jointStateHandle_, &position_command_);
     jointPosVelHandle_ = hardware_interface::PosVelJointHandle(jointStateHandle_, &position_command_, &velocity_command_);
-    jointActiveHandle_ = mh5_hardware::JointTorqueAndReboot (jointStateHandle_, &active_command_, &active_command_flag_, &reboot_command_flag_);
-    jointTempVoltHandle_ = mh5_hardware::TempVoltHandle(name_, &temperature_state_, &voltage_state_);
+    jointControlHandle_ = mh5_hardware::DynamixelJointControlHandle (jointStateHandle_, &position_command_, &active_command_, &reboot_command_);
+    // jointTempVoltHandle_ = mh5_hardware::TempVoltHandle(name_, &temperature_state_, &voltage_state_);
 }
 
 
@@ -52,34 +54,33 @@ bool Joint::isActive(bool refresh)
             ROS_ERROR("[%s] failed to read torque status for %s [%d]", nss_, name_.c_str(), id_);
         }
         else {
-            active_state_ = (double)value;
+            active_state_ = (bool)value;
         }
     }
-    return (active_state_ != 0);
+    return active_state_;
 }
 
 
-bool Joint::torqueOn()
+
+bool Joint::changeTorque(bool new_state)
 {
-    return writeRegister(64, 1, 1, TRIES);
-}
-
-
-bool Joint::torqueOff()
-{
-    return writeRegister(64, 1, 0, TRIES);
-}
-
-
-bool Joint::toggleTorque()
-{
-    if(writeRegister(64, 1, (long)active_command_, TRIES)) {
-        active_state_ = active_command_;
+    if (writeRegister(64, 1, (int)new_state, TRIES)) {
+        active_state_ = new_state;
         return true;
     }
-    else
-        return false;
+    return false;
 }
+
+
+// bool Joint::toggleTorque()
+// {
+//     if(writeRegister(64, 1, (long)active_command_, TRIES)) {
+//         active_state_ = active_command_;
+//         return true;
+//     }
+//     else
+//         return false;
+// }
 
 
 void Joint::initRegisters()
@@ -104,10 +105,15 @@ void Joint::initRegisters()
     writeRegister(84, 2, 1280, TRIES);       // Position P Gain
     writeRegister(88, 2, 0, TRIES);         // FF 2nd Gain
     writeRegister(90, 2, 0, TRIES);         // FF 1st Gain
-
+    // INDIRECT REGISTERS
+    writeRegister(168, 2, 64, TRIES);        // torque status (64)
+    writeRegister(170, 2, 70, TRIES);       // HW error (70)
+    writeRegister(172, 2, 144, TRIES);      // voltage L
+    writeRegister(174, 2, 145, TRIES);      // voltage H
+    writeRegister(176, 2, 146, TRIES);      // temperature
     // initilizes the active members to avoid issues later when the syncs start
     active_command_ = 0.0;
     active_state_ = 0.0;
-    active_command_flag_ = false;
-    reboot_command_flag_ = false;
+    // active_command_flag_ = false;
+    // reboot_command_ = false;
 }

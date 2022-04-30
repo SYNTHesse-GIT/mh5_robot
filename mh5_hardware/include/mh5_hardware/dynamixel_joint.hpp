@@ -114,51 +114,34 @@ public:
      */
     bool isActive(bool refresh = false);
 
-    /**
-     * @brief Sets torque on for the joint. Forces writing 1 in the register
-     * 64 of the servo.
-     * 
-     * @return true if the activation was successfull
-     * @return false if there was an error (communication or hardware)
-     */
-    bool torqueOn();
+    void setActive(bool active) { active_state_ = active; }
 
-    /**
-     * @brief Sets torque off for the joint. Forces writing 0 in the register
-     * 64 of the servo.
-     * 
-     * @return true if the deactivation was successfull
-     * @return false if there was an error (communication or hardware)
-     */
-    bool torqueOff();
+    int getHWError() { return hwerr_state_; }
 
-    /**
-     * @brief Indicates if there was a command to change the torque that
-     * was not yet completed. It simply returns the active_command_flag_
-     * member that should be set whenever a controllers wants to switch
-     * the torque status and sets the active_command_.
-     * 
-     * @return true there is a command that was not syncronised to hardware
-     * @return false there is no change in the status
-     */
-    bool shouldToggleTorque() { return active_command_flag_;}
+    void setHWEror(int hwerr) { hwerr_state_ = hwerr; }
 
-    /**
-     * @brief Resets to false the active_command_flag_. Normally 
-     * used by the sync loops after successful processing of an
-     * update.
-     */
-    void resetActiveCommandFlag() { active_command_flag_ = false;}
+    bool getTorqueCommand() { return active_command_; }
 
-    /**
-     * @brief Changes the torque by writing into register 64 in the hardware
-     * using the active_command_ value.
-     * If the change is successfull it will reset the active_command_flag_.
-     * 
-     * @return true successful change
-     * @return false communication or harware error
-     */
-    bool toggleTorque();
+    bool changeTorque(bool new_state);
+
+    bool shouldChangeTorque() { return active_command_ != active_state_;}
+
+    // /**
+    //  * @brief Resets to false the active_command_flag_. Normally 
+    //  * used by the sync loops after successful processing of an
+    //  * update.
+    //  */
+    // void resetActiveCommandFlag() { active_command_flag_ = false;}
+
+    // /**
+    //  * @brief Changes the torque by writing into register 64 in the hardware
+    //  * using the active_command_ value.
+    //  * If the change is successfull it will reset the active_command_flag_.
+    //  * 
+    //  * @return true successful change
+    //  * @return false communication or harware error
+    //  */
+    // bool toggleTorque();
 
     /**
      * @brief Produces an internal format for torque status based on a desired 
@@ -262,6 +245,20 @@ public:
     const hardware_interface::JointStateHandle& getJointStateHandle() { return jointStateHandle_; }
 
     /**
+     * @brief Returns the handle to the joint status interface object for this joint
+     * 
+     * @return const mh5_hardware::DynamixelStatusHandle& 
+     */
+    const mh5_hardware::DynamixelStatusHandle& getJointStatusHandle() { return jointStatusHandle_; }
+
+    /**
+     * @brief Returns the handle to the joint position control interface object 
+     * 
+     * @return const hardware_interface::JointStatusHandle& 
+     */
+    const hardware_interface::JointHandle& getJointPositionHandle() { return jointPositionHandle_; }
+
+    /**
      * @brief Returns the handle to the joint position / velocity command interface object for this joint
      * 
      * @return const hardware_interface::PosVelJointHandle& 
@@ -273,66 +270,39 @@ public:
      * 
      * @return const mh5_hardware::JointTorqueAndReboot& 
      */
-    const mh5_hardware::JointTorqueAndReboot& getJointActiveHandle() { return jointActiveHandle_; }
+    const mh5_hardware::DynamixelJointControlHandle& getJointControlHandle() { return jointControlHandle_; }
 
-    const mh5_hardware::TempVoltHandle& getTempVoltHandle() { return jointTempVoltHandle_; }
 
 protected:
-    //actual servos
-    /// @brief Servo uses inverse rotation
-    bool            inverse_;
-
-    /// @brief Offest for servo from 0 position (center) in radians
-    double          offset_;
-
-    //actual states
-    /// @brief Current position in radians
-    double          position_state_;
-
-    /// @brief Current velocity in radians/s
-    double          velocity_state_;
-
-    /// @brief Current effort in Nm
-    double          effort_state_;
-
-    /// @brief Current torque state [0.0 or 1.0]
-    double          active_state_;
-
-    /// @brief Current voltage [V]
-    double          voltage_state_;
-
-    /// @brief Current temperature deg C
-    double          temperature_state_;
+    // servo registers
+    bool            inverse_;            /// @brief Servo uses inverse rotation
+    double          offset_;             /// @brief Offest for servo from 0 position (center) in radians
+    double          position_state_;     /// @brief Current position in radians
+    double          velocity_state_;     /// @brief Current velocity in radians/s
+    double          effort_state_;       /// @brief Current effort in Nm
+    bool            active_state_;       /// @brief Current torque state [0.0 or 1.0]
+    int             hwerr_state_;        /// @brief Hardware error code
+    double          voltage_state_;      /// @brief Current voltage [V]
+    double          temperature_state_;  /// @brief Current temperature deg C
 
     //commands
-    /// @brief Desired position in radians
-    double          position_command_;
-
-    /// @brief Desired velocity in radians/s
-    double          velocity_command_;
-
-    /// @brief Indicates that the controller has updated the
-    /// desired poistion / velocity and is not yet syncronised.
-    bool            poistion_command_flag_;
-
-    /// @brief Desired torque state [0.0 or 1.0]
-    double          active_command_;
-
-    /// @brief Indicates that the controller has updated the
-    /// desired torque state and is not yet syncronised.
-    bool            active_command_flag_;
+    double          position_command_;   /// @brief Desired position in radians
+    double          velocity_command_;   /// @brief Desired velocity in radians/s
+    // bool            poistion_command_flag_;
+    bool            active_command_;     /// @brief Desired torque state [0.0 or 1.0]
+    bool            reboot_command_;     /// @brief Reboot command indicator
+    // bool            active_command_flag_;
 
     //hardware handles
-    /// @brief A handle that provides access to position, velocity and effort
-    hardware_interface::JointStateHandle    jointStateHandle_;
+    
+    hardware_interface::JointStateHandle        jointStateHandle_;  /// @brief A handle that provides access to position, velocity and effort
+    mh5_hardware::DynamixelStatusHandle         jointStatusHandle_; /// @brief A handle that provides access to temperature, voltage, activation status and hardware error
+    hardware_interface::JointHandle             jointPositionHandle_; /// @brief A hadle for commanding the position of a joint
+    mh5_hardware::DynamixelJointControlHandle   jointControlHandle_; /// @brief A handle that provides access to desired torque state
 
-    /// @brief A handle that provides access to desired position and desired velocity
-    hardware_interface::PosVelJointHandle   jointPosVelHandle_;
+    hardware_interface::PosVelJointHandle   jointPosVelHandle_; /// @brief A handle that provides access to desired position and desired velocity
 
-    /// @brief A handle that provides access to desired torque state
-    mh5_hardware::JointTorqueAndReboot      jointActiveHandle_;
 
-    mh5_hardware::TempVoltHandle            jointTempVoltHandle_;
 };
 
 
