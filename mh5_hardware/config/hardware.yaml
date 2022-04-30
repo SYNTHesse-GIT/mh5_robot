@@ -1,8 +1,9 @@
 robot_hardware:
-  # - lower_body
-  - upper_body
-  # - i2c
-upper_body:
+  - hw_upper_body
+  - hw_lower_body
+  # - hw_i2c
+
+hw_upper_body:
   type: mh5_hardware/MH5DynamixelBus
   joints:
     - head_p
@@ -19,8 +20,9 @@ upper_body:
   baudrate: 2000000
   protocol: 2.0
   rs485: true
-  rates:
+  loop_rates:
     pvl_reader: 100.0
+    stat_reader: 2.0
     pv_writer: 100.0
     t_writer: 2.0
   head_p:
@@ -48,13 +50,16 @@ upper_body:
   r_elb_p:
     id: 41
     inverse: true
-lower_body:
+
+hw_lower_body:
   type: mh5_hardware/MH5DynamixelBus
+  port: /dev/ttySC1
   baudrate: 2000000
   protocol: 2.0
   rs485: true
-  rates:
+  loop_rates:
     pvl_reader: 100.0
+    stat_reader: 2.0
     pv_writer: 100.0
     t_writer: 2.0
   joints:
@@ -112,7 +117,8 @@ lower_body:
     id: 19
   r_foot:
     id: 29
-i2c:
+
+hw_i2c:
   type: mh5_hardware/MH5I2CInterface
   port: /dev/i2c-1
   rates:

@@ -35,6 +35,7 @@ private:
 
     std::map<std::string, mh5_hardware::DynamixelJointControlHandle>                  joints_;
     std::map<std::string, std::vector< mh5_hardware::DynamixelJointControlHandle >>   groups_;
+    std::string nn_;       // node name; for messages
 
     /**
      * @brief Holds torque activation commands to be processed during the 

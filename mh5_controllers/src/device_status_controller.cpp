@@ -8,28 +8,26 @@ bool DeviceStatusController::init(mh5_hardware::DynamixelStatusInterface* hw, ro
 {
     // get publishing period
     if (!controller_nh.getParam("rate", rate_)){
-      ROS_INFO("[DeviceStatusController] Parameter 'rate' not set; default to 1Hz");
+      ROS_INFO("[%s] Parameter 'rate' not set; default to 1Hz", controller_nh.getNamespace().c_str());
       rate_ = 1.0;
     }
 
     std::string topic_name;
     if (!controller_nh.getParam("topic", topic_name)){
-      ROS_INFO("[DeviceStatusController] Parameter 'topic' not set; default to 'device_status'");
+      ROS_INFO("[%s] Parameter 'topic' not set; default to 'device_status'", controller_nh.getNamespace().c_str());
       topic_name = "device_status";
     }
     realtime_pub_.reset(new realtime_tools::RealtimePublisher<mh5_msgs::DeviceStatus>(root_nh, topic_name, 1));
 
     std::vector<std::string> joint_names;
+    std::string concat_names;
     if (controller_nh.getParam("joints", joint_names)) {
-        ROS_INFO("Joints parameter specified, publishing specified joints in desired order.");
+        ROS_INFO("[%s] Joints parameter specified, publishing specified joints in desired order.", controller_nh.getNamespace().c_str());
     } else {
       // get all joint names from the hardware interface
       joint_names = hw->getNames();
     }
-    ROS_INFO("Device Status handles: %d Dynamixel Joints", joint_names.size());
-
-    for (auto & joint_name : joint_names)
-    {
+    for (auto & joint_name : joint_names) {
         joints_.push_back(hw->getHandle(joint_name));
         realtime_pub_->msg_.device_names.push_back(joint_name);
         realtime_pub_->msg_.temperatures.push_back(0);
@@ -37,7 +35,9 @@ bool DeviceStatusController::init(mh5_hardware::DynamixelStatusInterface* hw, ro
         realtime_pub_->msg_.currents.push_back(0);
         realtime_pub_->msg_.active.push_back(0);
         realtime_pub_->msg_.hwerrs.push_back(0);
+        concat_names += joint_name + ", ";
     }
+    ROS_INFO("[%s] Device Status handles: %d Dynamixel Joints: [%s]", controller_nh.getNamespace().c_str(), joint_names.size(), concat_names.c_str());
 
     // mh5_hardware::VoltCurrInterface*   volt_curr_hw = robot_hw->get<mh5_hardware::VoltCurrInterface>();
     // if(!volt_curr_hw) {

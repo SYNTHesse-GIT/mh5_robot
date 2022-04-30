@@ -25,6 +25,8 @@ bool DynamixelJointController::init(mh5_hardware::DynamixelJointControlInterface
       return false;
     }
 
+    nn_ = n.getNamespace();
+
     for(unsigned int i=0; i<n_joints; i++) {
       try {
         joints_[joint_names[i]] = hw->getHandle(joint_names[i]);
@@ -37,14 +39,12 @@ bool DynamixelJointController::init(mh5_hardware::DynamixelJointControlInterface
 
     if(!n.hasParam("groups"))
     {
-        ROS_INFO("[%s] no groups specified; all joints will be placed in a group called 'all'",
-                  n.getNamespace().c_str());
+        ROS_INFO("[%s] no groups specified; all joints will be placed in a group called 'all'", nn_.c_str());
         groups_["all"];
         for (auto & joint : joints_) {
             groups_["all"].push_back(joint.second);
         }
-        ROS_INFO("[%s] group 'all' registered with %d items",
-                  n.getNamespace().c_str(), groups_["all"].size());
+        ROS_INFO("[%s] group 'all' registered with %d items", nn_.c_str(), groups_["all"].size());
     }
     else {
         std::vector<std::string> groups;
@@ -68,8 +68,7 @@ bool DynamixelJointController::init(mh5_hardware::DynamixelJointControlInterface
                     groups_[group].push_back(joints_[name]);
                 }
             }
-            ROS_INFO("[%s] group '%s' registered with %d items",
-                  n.getNamespace().c_str(), group.c_str(), groups_[group].size());
+            ROS_INFO("[%s] group '%s' registered with %d items", nn_.c_str(), group.c_str(), groups_[group].size());
         }
     }
     // we need this bacuse we're reusing the ardware_interface::JointCommandInterface
@@ -182,7 +181,7 @@ void DynamixelJointController::update(const ros::Time& /*time*/, const ros::Dura
 /* activates torque for all joints */
 void DynamixelJointController::starting(const ros::Time& /*time*/)
 {
-    ROS_INFO("Activating joints...");
+    ROS_INFO("[%s] Activating joints...", nn_.c_str());
     for (auto & joint : joints_) {
          joint.second.setActive(true);
     }
@@ -191,10 +190,10 @@ void DynamixelJointController::starting(const ros::Time& /*time*/)
 
 void DynamixelJointController::stopping(const ros::Time& /*time*/)
 {
+    ROS_INFO("[%s] Deactivating joints...", nn_.c_str());
     for (auto & joint: joints_) {
          joint.second.setActive(false);
     }
-    ROS_INFO("Joints deactivated...");
 }
 
 
@@ -210,7 +209,7 @@ bool DynamixelPositionController::init(hardware_interface::RobotHW* robot_hw, ro
         ROS_ERROR("Failed to initialize the JointGroupPositionController controller object");
         return false;
     }
-    pos_hw->clearClaims();
+    // pos_hw->clearClaims();
 
     mh5_hardware::DynamixelJointControlInterface* ctrl_hw = robot_hw->get<mh5_hardware::DynamixelJointControlInterface>();
     if(!ctrl_hw) {

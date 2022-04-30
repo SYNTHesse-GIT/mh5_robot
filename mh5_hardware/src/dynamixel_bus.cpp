@@ -210,9 +210,9 @@ template <class Loop>
 Loop* MH5DynamixelBus::setupLoop(std::string name, const double default_rate)
 {
     double rate;
-    if (!nh_.getParam("rates/"+name, rate)) 
+    if (!nh_.getParam("loop_rates/"+name, rate)) 
     {
-        ROS_INFO("[%s] loop %s no 'rates/%s' available, default to %.1f Hz", nss_, name.c_str(),
+        ROS_INFO("[%s] loop %s no 'loop_rates/%s' available, default to %.1f Hz", nss_, name.c_str(),
                   name.c_str(), default_rate);
         rate = default_rate;
     }
