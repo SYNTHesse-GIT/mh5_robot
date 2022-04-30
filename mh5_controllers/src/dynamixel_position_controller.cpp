@@ -41,10 +41,12 @@ bool DynamixelJointController::init(mh5_hardware::DynamixelJointControlInterface
     {
         ROS_INFO("[%s] no groups specified; all joints will be placed in a group called 'all'", nn_.c_str());
         groups_["all"];
+        std::string concat_names;
         for (auto & joint : joints_) {
             groups_["all"].push_back(joint.second);
+            concat_names += joint.second.getName() + ", ";
         }
-        ROS_INFO("[%s] group 'all' registered with %d items", nn_.c_str(), groups_["all"].size());
+        ROS_INFO("[%s] group 'all' registered with %d items: [%s]", nn_.c_str(), groups_["all"].size(), concat_names.c_str());
     }
     else {
         std::vector<std::string> groups;
@@ -54,6 +56,7 @@ bool DynamixelJointController::init(mh5_hardware::DynamixelJointControlInterface
             std::vector<std::string>    names;      // could be joints or subgroups
             std::vector<std::string>    joint_names;// only joint names
             std::vector<mh5_hardware::DynamixelJointControlHandle>    joint_handles;
+            std::string concat_names;
             groups_[group];
             n.getParam(group, names);
             for (auto & name : names) {
@@ -62,13 +65,15 @@ bool DynamixelJointController::init(mh5_hardware::DynamixelJointControlInterface
                     // handle subgroup; we copy the handles from the subgroup
                     for (auto & handle : groups_[name]) {
                         groups_[group].push_back(handle);
+                        concat_names += handle.getName() + ", ";
                     }
                 }
                 else {
                     groups_[group].push_back(joints_[name]);
+                    concat_names += name + ", ";
                 }
             }
-            ROS_INFO("[%s] group '%s' registered with %d items", nn_.c_str(), group.c_str(), groups_[group].size());
+            ROS_INFO("[%s] group '%s' registered with %d items: [%s]", nn_.c_str(), group.c_str(), groups_[group].size(), concat_names.c_str());
         }
     }
     // we need this bacuse we're reusing the ardware_interface::JointCommandInterface

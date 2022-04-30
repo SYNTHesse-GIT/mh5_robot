@@ -15,7 +15,8 @@
     "/>
     <node name="controller_spawner_control" pkg="controller_manager" type="spawner" respawn="false" output="screen" ns="/"
         args="--stopped
-             head_controller
-             arms_controller
+             head_pos_controller
+             arms_pos_controller
+             robot_pos_controller
     "/>
 </launch>
