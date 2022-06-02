@@ -2,7 +2,7 @@
     <rosparam file="$(find mh5_controllers)/config/controllers.yaml" command="load"/>
     <rosparam file="$(find mh5_hardware)/config/hardware.yaml" command="load"/>
 
-    <arg name="model" default="$(find mh5_description)/urdf/mh5_robot_revC.xacro"/>
+    <arg name="model" default="$(find mh5_description)/urdf/mh5_robot_revE.xacro"/>
 
     <param name="robot_description" command="$(find xacro)/xacro $(arg model)" />
 
@@ -26,4 +26,5 @@
              legs_pos_controller
              robot_pos_controller
     "/>
+
 </launch>
