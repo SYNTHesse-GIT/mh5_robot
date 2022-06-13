@@ -44,9 +44,36 @@ void DynamixelDevice::fromParam(ros::NodeHandle& nh, std::string& name, mh5_port
         id_ = (uint8_t)device_id;
         present_ = true;
     }
+    if(!nh.getParam(name + "/inits", inits_)) {
+        ROS_WARN("[%s] joint %s [%d] has not inits specified",  nss_, name_.c_str(), id_);
+    }
     reboot_command_ = false;
 }
 
+void DynamixelDevice::initRegisters()
+{
+    for (auto init: inits_) {
+        std::vector<std::string>    registers;
+        if(!nh_.getParamCached("/dynamixel_inits/" + init, registers)) {
+            ROS_ERROR("[%s] init %s used by %d does not exist", nss_, init.c_str(), id_);
+            continue;
+        }
+        for (auto reg: registers) {
+            std::vector<int>    sequence;
+            if(!nh_.getParamCached("/dynamixel_inits/" + reg, sequence)) {
+                ROS_ERROR("[%s] register init %s used by %d does not exist", nss_, reg.c_str(), id_);
+                continue;
+            }
+            if (sequence.size() < 3) {
+                ROS_ERROR("[%s] register init %s used by %d has less than 3 parameters", nss_, reg.c_str(), id_);
+                continue;
+            }
+            if(!writeRegister(sequence[0], sequence[1], sequence[2], 5)) {
+                 ROS_ERROR("[%s] register init %s used by %d failed", nss_, reg.c_str(), id_);
+            }
+        }
+    }
+}
 
 bool DynamixelDevice::ping(const int num_tries )
 {
@@ -69,12 +96,9 @@ bool DynamixelDevice::ping(const int num_tries )
                       nss_, name_.c_str(), id_, ph_->getRxPacketError(dxl_error));
             continue;
         }
-        
-        ROS_INFO("[%s] device %s [%d] detected", nss_, name_.c_str(), id_);
         device_ok = true;
         break;
     }
-
     return device_ok;
 }
 

@@ -235,7 +235,8 @@ public:
      * @return uint32_t a value suitable for writing to the hardware profile velocity
      * for the desired position in velocity_command_ expressed in radians/s.
      */
-    uint32_t getVelocityProfileFromCommand() { return abs((position_command_ - position_state_) / velocity_command_) * 1000; }
+    // uint32_t getVelocityProfileFromCommand() { return abs((position_command_ - position_state_) / velocity_command_) * 1000; }
+    uint32_t getVelocityProfileFromCommand() { return 0; }
 
     /**
      * @brief Returns the handle to the joint position interface object for this joint

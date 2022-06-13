@@ -3,6 +3,37 @@ robot_hardware:
   - hw_lower_body
   # - hw_i2c
 
+dynamixel_inits:
+  init_common:
+    - init_return_delay
+    - init_operating_mode
+    - init_temp_limit
+    - init_volt_limit
+    - init_vel_limit
+    - init_min_pos
+    - init_max_pos
+
+  init_indirect:
+    - init_indirect_torque
+    - init_indirect_hwerr
+    - init_indirect_volt_l
+    - init_indirect_volt_h
+    - init_indirect_temp
+
+  init_return_delay: [9, 1, 0]
+  init_operating_mode: [11, 1, 3]
+  init_temp_limit: [31, 1, 75]
+  init_volt_limit: [32, 2, 135]
+  init_vel_limit: [44, 4, 1023]
+  init_min_pos: [52, 4, 0]
+  init_max_pos: [48, 4, 4095]
+
+  init_indirect_torque: [168, 2, 64]
+  init_indirect_hwerr: [170, 2, 70]
+  init_indirect_volt_l: [172, 2, 144]
+  init_indirect_volt_h: [174, 2, 145]
+  init_indirect_temp: [176, 2, 146]
+
 hw_upper_body:
   type: mh5_hardware/MH5DynamixelBus
   joints:
@@ -28,28 +59,38 @@ hw_upper_body:
   head_p:
     id: 51
     inverse: true
+    inits: [init_common, init_indirect]
   head_y:
     id: 52
+    inits: [init_common, init_indirect]
   l_sho_p:
     id: 34
     inverse: true
+    inits: [init_common, init_indirect]
   l_sho_r:
     id: 33
     inverse: true
+    inits: [init_common, init_indirect]
   l_elb_y:
     id: 32
     inverse: true
+    inits: [init_common, init_indirect]
   l_elb_p:
     id: 31
+    inits: [init_common, init_indirect]
   r_sho_p:
     id: 44
+    inits: [init_common, init_indirect]
   r_sho_r:
     id: 43
+    inits: [init_common, init_indirect]
   r_elb_y:
     id: 42
+    inits: [init_common, init_indirect]
   r_elb_p:
     id: 41
     inverse: true
+    inits: [init_common, init_indirect]
 
 hw_lower_body:
   type: mh5_hardware/MH5DynamixelBus
@@ -81,38 +122,50 @@ hw_lower_body:
   l_hip_r:
     id: 16
     inverse: true
+    inits: [init_common, init_indirect]
   l_hip_p:
     id: 15
     inverse: true
+    inits: [init_common, init_indirect]
   l_kne_p:
     id: 14
     inverse: true
     offset: 1.570796326794897
+    inits: [init_common, init_indirect]
   l_kne_y:
     id: 13
     inverse: true
+    inits: [init_common, init_indirect]
   l_ank_p:
     id: 12
     inverse: true
+    inits: [init_common, init_indirect]
   l_ank_r:
     id: 11
+    inits: [init_common, init_indirect]
   r_hip_r:
     id: 26
+    inits: [init_common, init_indirect]
   r_hip_p:
     id: 25
     inverse: true
+    inits: [init_common, init_indirect]
   r_kne_p:
     id: 24
     inverse: true
     offset: 1.570796326794897
+    inits: [init_common, init_indirect]
   r_kne_y:
     id: 23
+    inits: [init_common, init_indirect]
   r_ank_p:
     id: 22
     inverse: true
+    inits: [init_common, init_indirect]
   r_ank_r:
     id: 21
     inverse: true
+    inits: [init_common, init_indirect]
   l_foot:
     id: 19
   r_foot:

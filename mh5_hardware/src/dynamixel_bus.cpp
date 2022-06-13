@@ -135,6 +135,9 @@ bool MH5DynamixelBus::initJoints()
                         nss_, j->name().c_str(), j->id());
             j->setPresent(false);
         }
+        else {
+            ROS_INFO("[%s] joint %s [%d] detected", nss_, j->name().c_str(), j->id());
+        }
         // because both axles' torque needs to be turned off in order to update
         // the registers; we first scan all the servos and disable torque if
         // necessary

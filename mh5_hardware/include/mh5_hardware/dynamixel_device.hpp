@@ -105,7 +105,7 @@ public:
      * @brief Hard-codes the initialization of the device. Subclasses must
      * override the method.
      */
-    virtual void initRegisters() = 0;
+    virtual void initRegisters();
 
     /**
      * @brief Convenience method for writing a register to the device. Depending
@@ -170,6 +170,7 @@ protected:
     uint8_t                             id_;             /// @brief Device ID
     bool                                present_;        /// @brief Device is present (true) or not (false)
     bool                                reboot_command_; /// @brief Controller requested a reboot and is not yet syncronised
+    std::vector< std::string >          inits_;          /// @brief List if initializers for this device
 };
 
 

@@ -85,35 +85,37 @@ bool Joint::changeTorque(bool new_state)
 
 void Joint::initRegisters()
 {
-    writeRegister(9, 1, 0, TRIES);       // return delay
-    writeRegister(11, 1, 3, TRIES);      // operating mode
-    writeRegister(31, 1, 75, TRIES);     // temperature limit
-    writeRegister(32, 2, 135, TRIES);    // max voltage
-    writeRegister(44, 4, 1023, TRIES);   // velocity limit
-    writeRegister(48, 4, 4095, TRIES);   // max position
-    writeRegister(52, 4, 0, TRIES);      // min position
+    DynamixelDevice::initRegisters();
+
+    // writeRegister(9, 1, 0, TRIES);       // return delay
+    // writeRegister(11, 1, 3, TRIES);      // operating mode = position control mode
+    // writeRegister(31, 1, 75, TRIES);     // temperature limit
+    // writeRegister(32, 2, 135, TRIES);    // max voltage
+    // writeRegister(44, 4, 1023, TRIES);   // velocity limit
+    // writeRegister(48, 4, 4095, TRIES);   // max position
+    // writeRegister(52, 4, 0, TRIES);      // min position
 
     // direction
     if (inverse_)
-        writeRegister(10, 1, 5, TRIES);  // inverse; time profile
+        writeRegister(10, 1, 1, TRIES);  // inverse; velocity profile
     else
-        writeRegister(10, 1, 4, TRIES);  // direct; time profile
+        writeRegister(10, 1, 0, TRIES);  // direct; velocity profile
 
     // PID and FF
     writeRegister(80, 2, 4000, TRIES);      // Position D Gain
     writeRegister(82, 2, 0, TRIES);         // Position I Gain
-    writeRegister(84, 2, 1280, TRIES);       // Position P Gain
+    writeRegister(84, 2, 200, TRIES);       // Position P Gain
     writeRegister(88, 2, 0, TRIES);         // FF 2nd Gain
     writeRegister(90, 2, 0, TRIES);         // FF 1st Gain
     // INDIRECT REGISTERS
-    writeRegister(168, 2, 64, TRIES);        // torque status (64)
-    writeRegister(170, 2, 70, TRIES);       // HW error (70)
-    writeRegister(172, 2, 144, TRIES);      // voltage L
-    writeRegister(174, 2, 145, TRIES);      // voltage H
-    writeRegister(176, 2, 146, TRIES);      // temperature
+    // writeRegister(168, 2, 64, TRIES);        // torque status (64)
+    // writeRegister(170, 2, 70, TRIES);       // HW error (70)
+    // writeRegister(172, 2, 144, TRIES);      // voltage L
+    // writeRegister(174, 2, 145, TRIES);      // voltage H
+    // writeRegister(176, 2, 146, TRIES);      // temperature
     // initilizes the active members to avoid issues later when the syncs start
-    active_command_ = 0.0;
-    active_state_ = 0.0;
+    active_command_ = false;
+    active_state_ = false;
     // active_command_flag_ = false;
     // reboot_command_ = false;
 }
