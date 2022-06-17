@@ -21,7 +21,7 @@ public:
     : controller_interface::Controller<mh5_hardware::DynamixelJointControlInterface> ()
     {}
 
-    ~DynamixelPositionController() {torque_srv_.shutdown(); reboot_srv_.shutdown(); }
+    ~DynamixelPositionController() {} // shutdown is handled in stopping
 
     bool init(mh5_hardware::DynamixelJointControlInterface* hw, ros::NodeHandle &n);
 
@@ -33,11 +33,13 @@ public:
 
 
 private:
-    std::vector< std::string > joint_names_;
-    unsigned int n_joints_;
+    ros::NodeHandle            nh_;
+    std::string                nn_;       // node name; for messages
+    std::vector<std::string>   joint_names_;
+    unsigned int               n_joints_;
+
     std::map<std::string, mh5_hardware::DynamixelJointControlHandle>                  joints_;
     std::map<std::string, std::vector< mh5_hardware::DynamixelJointControlHandle >>   groups_;
-    std::string nn_;       // node name; for messages
 
     /**
      * @brief Holds torque activation commands to be processed during the 

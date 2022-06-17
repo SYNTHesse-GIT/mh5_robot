@@ -10,6 +10,9 @@ bool DynamixelPositionController::init(mh5_hardware::DynamixelJointControlInterf
     if(!controller_interface::Controller<mh5_hardware::DynamixelJointControlInterface>::init(hw, n))
         return false;
 
+    // save node handle
+    nh_ = n;
+
     // List of controlled joints
     std::string param_name = "joints";
     if(!n.getParam(param_name, joint_names_))
@@ -86,9 +89,9 @@ bool DynamixelPositionController::init(mh5_hardware::DynamixelJointControlInterf
     // registers and other write steps.
     // hw->clearClaims();
 
-    position_sub_ = n.subscribe<trajectory_msgs::JointTrajectoryPoint>("command", 5, &DynamixelPositionController::commandCB, this);
-    torque_srv_ = n.advertiseService("torque", &DynamixelPositionController::torqueCB, this);
-    reboot_srv_ = n.advertiseService("reboot", &DynamixelPositionController::rebootCB, this);
+    // position_sub_ = n.subscribe<trajectory_msgs::JointTrajectoryPoint>("command", 5, &DynamixelPositionController::commandCB, this);
+    // torque_srv_ = n.advertiseService("torque", &DynamixelPositionController::torqueCB, this);
+    // reboot_srv_ = n.advertiseService("reboot", &DynamixelPositionController::rebootCB, this);
 
     return true;
 }
@@ -232,6 +235,11 @@ void DynamixelPositionController::update(const ros::Time& /*time*/, const ros::D
 /* activates torque for all joints */
 void DynamixelPositionController::starting(const ros::Time& /*time*/)
 {
+    ROS_INFO("[%s] Starting services...", nn_.c_str());
+    position_sub_ = nh_.subscribe<trajectory_msgs::JointTrajectoryPoint>("command", 5, &DynamixelPositionController::commandCB, this);
+    torque_srv_ = nh_.advertiseService("torque", &DynamixelPositionController::torqueCB, this);
+    reboot_srv_ = nh_.advertiseService("reboot", &DynamixelPositionController::rebootCB, this);
+
     ROS_INFO("[%s] Activating joints...", nn_.c_str());
     for (auto & joint : joints_) {
          joint.second.setActive(true);
@@ -245,6 +253,11 @@ void DynamixelPositionController::stopping(const ros::Time& /*time*/)
     for (auto & joint: joints_) {
          joint.second.setActive(false);
     }
+
+    ROS_INFO("[%s] Stopping services...", nn_.c_str());
+    position_sub_.shutdown();
+    torque_srv_.shutdown();
+    reboot_srv_.shutdown();
 }
 
 
