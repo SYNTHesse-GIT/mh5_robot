@@ -276,22 +276,23 @@ public:
 
 protected:
     // servo registers
-    bool            inverse_;            /// @brief Servo uses inverse rotation
-    double          offset_;             /// @brief Offest for servo from 0 position (center) in radians
-    double          position_state_;     /// @brief Current position in radians
-    double          velocity_state_;     /// @brief Current velocity in radians/s
-    double          effort_state_;       /// @brief Current effort in Nm
-    bool            active_state_;       /// @brief Current torque state [0.0 or 1.0]
-    int             hwerr_state_;        /// @brief Hardware error code
-    double          voltage_state_;      /// @brief Current voltage [V]
-    double          temperature_state_;  /// @brief Current temperature deg C
+    bool         inverse_;            /// @brief Servo uses inverse rotation
+    double       offset_;             /// @brief Offest for servo from 0 position (center) in radians
+    double       position_state_;     /// @brief Current position in radians
+    double       velocity_state_;     /// @brief Current velocity in radians/s
+    double       effort_state_;       /// @brief Current effort in Nm
+    bool         active_state_;       /// @brief Current torque state [0.0 or 1.0]
+    int          hwerr_state_;        /// @brief Hardware error code
+    double       voltage_state_;      /// @brief Current voltage [V]
+    double       temperature_state_;  /// @brief Current temperature deg C
 
     //commands
-    double          position_command_;   /// @brief Desired position in radians
-    double          velocity_command_;   /// @brief Desired velocity in radians/s
+    double       position_command_;   /// @brief Desired position in radians
+    double       velocity_command_;   /// @brief Desired velocity profile [rad/s]
+    double       acceleration_command_; // @brief Desired acceleration profile [rad/s^2]
     // bool            poistion_command_flag_;
-    bool            active_command_;     /// @brief Desired torque state [0.0 or 1.0]
-    bool            reboot_command_;     /// @brief Reboot command indicator
+    bool         active_command_;     /// @brief Desired torque state [0.0 or 1.0]
+    bool         reboot_command_;     /// @brief Reboot command indicator
     // bool            active_command_flag_;
 
     //hardware handles

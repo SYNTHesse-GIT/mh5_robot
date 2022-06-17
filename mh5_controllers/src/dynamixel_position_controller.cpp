@@ -5,31 +5,30 @@
 namespace mh5_controllers
 {
 
-bool DynamixelJointController::init(mh5_hardware::DynamixelJointControlInterface* hw, ros::NodeHandle &n)
+bool DynamixelPositionController::init(mh5_hardware::DynamixelJointControlInterface* hw, ros::NodeHandle &n)
 {
     if(!controller_interface::Controller<mh5_hardware::DynamixelJointControlInterface>::init(hw, n))
         return false;
 
     // List of controlled joints
     std::string param_name = "joints";
-    std::vector< std::string > joint_names;
-    if(!n.getParam(param_name, joint_names))
+    if(!n.getParam(param_name, joint_names_))
     {
       ROS_ERROR_STREAM("Failed to getParam '" << param_name << "' (namespace: " << n.getNamespace() << ").");
       return false;
     }
 
-    unsigned int n_joints = joint_names.size();
-    if(n_joints == 0) {
+    n_joints_ = joint_names_.size();
+    if(n_joints_ == 0) {
       ROS_ERROR("List of joint names is empty.");
       return false;
     }
 
     nn_ = n.getNamespace();
 
-    for(unsigned int i=0; i<n_joints; i++) {
+    for(auto joint_name : joint_names_) {
       try {
-        joints_[joint_names[i]] = hw->getHandle(joint_names[i]);
+        joints_[joint_name] = hw->getHandle(joint_name);
       }
       catch (const hardware_interface::HardwareInterfaceException& e) {
         ROS_ERROR_STREAM("Exception thrown: " << e.what());
@@ -61,6 +60,7 @@ bool DynamixelJointController::init(mh5_hardware::DynamixelJointControlInterface
             n.getParam(group, names);
             for (auto & name : names) {
                 if (groups_.count(name))
+                // name is a group name
                 {
                     // handle subgroup; we copy the handles from the subgroup
                     for (auto & handle : groups_[name]) {
@@ -68,7 +68,9 @@ bool DynamixelJointController::init(mh5_hardware::DynamixelJointControlInterface
                         concat_names += handle.getName() + ", ";
                     }
                 }
-                else {
+                else 
+                // name is a joint
+                {
                     groups_[group].push_back(joints_[name]);
                     concat_names += name + ", ";
                 }
@@ -84,14 +86,31 @@ bool DynamixelJointController::init(mh5_hardware::DynamixelJointControlInterface
     // registers and other write steps.
     // hw->clearClaims();
 
-    torque_srv_ = n.advertiseService("torque", &DynamixelJointController::torqueCB, this);
-    reboot_srv_ = n.advertiseService("reboot", &DynamixelJointController::rebootCB, this);
+    position_sub_ = n.subscribe<trajectory_msgs::JointTrajectoryPoint>("command", 5, &DynamixelPositionController::commandCB, this);
+    torque_srv_ = n.advertiseService("torque", &DynamixelPositionController::torqueCB, this);
+    reboot_srv_ = n.advertiseService("reboot", &DynamixelPositionController::rebootCB, this);
 
     return true;
 }
 
+void DynamixelPositionController::commandCB(const trajectory_msgs::JointTrajectoryPointConstPtr &msg)
+{
+    if (msg->positions.size() != n_joints_) {
+        ROS_ERROR_STREAM("Dimension of position command (" << msg->positions.size() << ") does not match number of joints (" << n_joints_ << ")! Not executing!");
+        return;
+    }
+    if (msg->velocities.size() != 0 && msg->velocities.size() != n_joints_) {
+        ROS_ERROR_STREAM("Dimension of velocity command (" << msg->velocities.size() << ") does not match number of joints (" << n_joints_ << ")! Not executing!");
+        return;
+    }
+    if (msg->accelerations.size() != 0 && msg->accelerations.size() != n_joints_) {
+        ROS_ERROR_STREAM("Dimension of acceleration command (" <<msg->accelerations.size() << ") does not match number of joints (" << n_joints_ << ")! Not executing!");
+        return;
+    }
+    position_commands_buffer_.writeFromNonRT(*msg);
+}
 
-bool DynamixelJointController::torqueCB(mh5_msgs::ActivateJoint::Request &req, mh5_msgs::ActivateJoint::Response &res)
+bool DynamixelPositionController::torqueCB(mh5_msgs::ActivateJoint::Request &req, mh5_msgs::ActivateJoint::Response &res)
 {
     if (groups_.count(req.name))  {
         torque_commands_buffer_.writeFromNonRT(req);
@@ -114,7 +133,7 @@ bool DynamixelJointController::torqueCB(mh5_msgs::ActivateJoint::Request &req, m
 }
 
 
-bool DynamixelJointController::rebootCB(mh5_msgs::ActivateJoint::Request &req, mh5_msgs::ActivateJoint::Response &res)
+bool DynamixelPositionController::rebootCB(mh5_msgs::ActivateJoint::Request &req, mh5_msgs::ActivateJoint::Response &res)
 {
     if (groups_.count(req.name))  {
         reboot_commands_buffer_.writeFromNonRT(req);
@@ -138,8 +157,30 @@ bool DynamixelJointController::rebootCB(mh5_msgs::ActivateJoint::Request &req, m
 
 
 
-void DynamixelJointController::update(const ros::Time& /*time*/, const ros::Duration& /*period*/)
+void DynamixelPositionController::update(const ros::Time& /*time*/, const ros::Duration& /*period*/)
 {
+    //
+    // Handle Position command messages
+    //
+    trajectory_msgs::JointTrajectoryPoint &   pos_cmd = *position_commands_buffer_.readFromRT();
+
+    for (int i=0; i < pos_cmd.positions.size(); i++) {
+        joints_[joint_names_[i]].setCommandPosition(pos_cmd.positions[i]);
+    }
+    if (pos_cmd.velocities.size() > 0) {
+        for (int i=0; i < pos_cmd.velocities.size(); i++) {
+            joints_[joint_names_[i]].setCommandVelocity(pos_cmd.velocities[i]);
+        }
+    }
+    if (pos_cmd.accelerations.size() > 0) {
+        for (int i=0; i < pos_cmd.accelerations.size(); i++) {
+            joints_[joint_names_[i]].setCommandAcceleration(pos_cmd.accelerations[i]);
+        }
+    }
+
+    //
+    // Handle torque commands
+    //
     mh5_msgs::ActivateJoint::Request command = *torque_commands_buffer_.readFromRT();
 
     if (command.name != "")
@@ -160,6 +201,9 @@ void DynamixelJointController::update(const ros::Time& /*time*/, const ros::Dura
         }
     }
 
+    //
+    // Handle reboot commands
+    //
     command = *reboot_commands_buffer_.readFromRT();
 
     if (command.name != "")
@@ -180,11 +224,13 @@ void DynamixelJointController::update(const ros::Time& /*time*/, const ros::Dura
             return;
         }
     }
+
+
 }
 
 
 /* activates torque for all joints */
-void DynamixelJointController::starting(const ros::Time& /*time*/)
+void DynamixelPositionController::starting(const ros::Time& /*time*/)
 {
     ROS_INFO("[%s] Activating joints...", nn_.c_str());
     for (auto & joint : joints_) {
@@ -193,7 +239,7 @@ void DynamixelJointController::starting(const ros::Time& /*time*/)
 }
 
 
-void DynamixelJointController::stopping(const ros::Time& /*time*/)
+void DynamixelPositionController::stopping(const ros::Time& /*time*/)
 {
     ROS_INFO("[%s] Deactivating joints...", nn_.c_str());
     for (auto & joint: joints_) {
@@ -202,53 +248,53 @@ void DynamixelJointController::stopping(const ros::Time& /*time*/)
 }
 
 
-bool DynamixelPositionController::init(hardware_interface::RobotHW* robot_hw, ros::NodeHandle& root_nh, ros::NodeHandle& controller_nh)
-{
-    hardware_interface::PositionJointInterface*   pos_hw = robot_hw->get<hardware_interface::PositionJointInterface>();
-    if(!pos_hw) {
-        ROS_ERROR("Requires PositionJointInterface");
-        return false;
-    }
-    pos_controller_ = new position_controllers::JointGroupPositionController();
-    if(! pos_controller_->init(pos_hw, controller_nh)) {
-        ROS_ERROR("Failed to initialize the JointGroupPositionController controller object");
-        return false;
-    }
-    // pos_hw->clearClaims();
+// bool DynamixelPositionController::init(hardware_interface::RobotHW* robot_hw, ros::NodeHandle& root_nh, ros::NodeHandle& controller_nh)
+// {
+//     hardware_interface::PositionJointInterface*   pos_hw = robot_hw->get<hardware_interface::PositionJointInterface>();
+//     if(!pos_hw) {
+//         ROS_ERROR("Requires PositionJointInterface");
+//         return false;
+//     }
+//     pos_controller_ = new position_controllers::JointGroupPositionController();
+//     if(! pos_controller_->init(pos_hw, controller_nh)) {
+//         ROS_ERROR("Failed to initialize the JointGroupPositionController controller object");
+//         return false;
+//     }
+//     // pos_hw->clearClaims();
 
-    mh5_hardware::DynamixelJointControlInterface* ctrl_hw = robot_hw->get<mh5_hardware::DynamixelJointControlInterface>();
-    if(!ctrl_hw) {
-        ROS_ERROR("Requires DynamixelJointControlInterface");
-        return false;
-    }
-    ctrl_controller_ = new DynamixelJointController();
-    if(! ctrl_controller_->init(ctrl_hw, controller_nh)) {
-        ROS_ERROR("Failed to initialize the DynamixelJointController controller object");
-        return false;
-    }
-    return true;
-}
-
-
-void DynamixelPositionController::starting(const ros::Time& time)
-{
-    pos_controller_->starting(time);
-    ctrl_controller_->starting(time);
-}
+//     mh5_hardware::DynamixelJointControlInterface* ctrl_hw = robot_hw->get<mh5_hardware::DynamixelJointControlInterface>();
+//     if(!ctrl_hw) {
+//         ROS_ERROR("Requires DynamixelJointControlInterface");
+//         return false;
+//     }
+//     ctrl_controller_ = new DynamixelJointController();
+//     if(! ctrl_controller_->init(ctrl_hw, controller_nh)) {
+//         ROS_ERROR("Failed to initialize the DynamixelJointController controller object");
+//         return false;
+//     }
+//     return true;
+// }
 
 
-void DynamixelPositionController::stopping(const ros::Time& time)
-{
-    pos_controller_->stopping(time);
-    ctrl_controller_->stopping(time);
-}
+// void DynamixelPositionController::starting(const ros::Time& time)
+// {
+//     pos_controller_->starting(time);
+//     ctrl_controller_->starting(time);
+// }
 
 
-void DynamixelPositionController::update(const ros::Time& time, const ros::Duration& period)
-{
-    pos_controller_->update(time, period);
-    ctrl_controller_->update(time, period);
-}
+// void DynamixelPositionController::stopping(const ros::Time& time)
+// {
+//     pos_controller_->stopping(time);
+//     ctrl_controller_->stopping(time);
+// }
+
+
+// void DynamixelPositionController::update(const ros::Time& time, const ros::Duration& period)
+// {
+//     pos_controller_->update(time, period);
+//     ctrl_controller_->update(time, period);
+// }
 
 
 // bool DynamixelPositionController::initRequest(hardware_interface::RobotHW* robot_hw,

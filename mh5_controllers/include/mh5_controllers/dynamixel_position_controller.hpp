@@ -1,5 +1,6 @@
 #include <std_srvs/Trigger.h>
 #include <realtime_tools/realtime_buffer.h>
+#include <trajectory_msgs/JointTrajectoryPoint.h>
 #include <controller_interface/multi_interface_controller.h>
 // #include <forward_command_controller/forward_joint_group_command_controller.h>
 #include <position_controllers/joint_group_position_controller.h>
@@ -12,15 +13,15 @@ namespace mh5_controllers
 {
 
 
-class DynamixelJointController : public controller_interface::Controller<mh5_hardware::DynamixelJointControlInterface>
+class DynamixelPositionController : public controller_interface::Controller<mh5_hardware::DynamixelJointControlInterface>
 {
 
 public:
-    DynamixelJointController()
+    DynamixelPositionController()
     : controller_interface::Controller<mh5_hardware::DynamixelJointControlInterface> ()
     {}
 
-    ~DynamixelJointController() {torque_srv_.shutdown(); reboot_srv_.shutdown(); }
+    ~DynamixelPositionController() {torque_srv_.shutdown(); reboot_srv_.shutdown(); }
 
     bool init(mh5_hardware::DynamixelJointControlInterface* hw, ros::NodeHandle &n);
 
@@ -32,7 +33,8 @@ public:
 
 
 private:
-
+    std::vector< std::string > joint_names_;
+    unsigned int n_joints_;
     std::map<std::string, mh5_hardware::DynamixelJointControlHandle>                  joints_;
     std::map<std::string, std::vector< mh5_hardware::DynamixelJointControlHandle >>   groups_;
     std::string nn_;       // node name; for messages
@@ -53,6 +55,8 @@ private:
      */
     realtime_tools::RealtimeBuffer<mh5_msgs::ActivateJoint::Request> reboot_commands_buffer_;
 
+    realtime_tools::RealtimeBuffer<trajectory_msgs::JointTrajectoryPoint> position_commands_buffer_;
+
     /**
      * @brief ROS Service that responds to the "switch_torque" calls.
      */
@@ -62,6 +66,9 @@ private:
      * @brief ROS Service that responds to the "reboot" calls.
      */
     ros::ServiceServer reboot_srv_;
+
+    ros::Subscriber position_sub_;
+
 
     /**
      * @brief Callback for processing "switch_torque" calls. Checks if the requested
@@ -83,44 +90,45 @@ private:
      */
     bool rebootCB(mh5_msgs::ActivateJoint::Request &req, mh5_msgs::ActivateJoint::Response &res);
     
+    void commandCB(const trajectory_msgs::JointTrajectoryPointConstPtr& msg);
 };
 
 
-class  DynamixelPositionController : public controller_interface::MultiInterfaceController<
-        hardware_interface::PositionJointInterface,
-        mh5_hardware::DynamixelJointControlInterface>
+// class  DynamixelPositionController : public controller_interface::MultiInterfaceController<
+//         hardware_interface::PositionJointInterface,
+//         mh5_hardware::DynamixelJointControlInterface>
 
-// public position_controllers::JointGroupPositionController, DynamixelJointController
-{
-public:
+// // public position_controllers::JointGroupPositionController, DynamixelJointController
+// {
+// public:
 
-    /**
-     * @brief Construct a new Active Joint Controller object using a 
-     * mh5_hardware::ActiveJointInterface interface.
-     */
-    DynamixelPositionController()
-    :     controller_interface::MultiInterfaceController<hardware_interface::PositionJointInterface, mh5_hardware::DynamixelJointControlInterface> (true)
-    // position_controllers::JointGroupPositionController(), DynamixelJointController()
-    {}
+//     /**
+//      * @brief Construct a new Active Joint Controller object using a 
+//      * mh5_hardware::ActiveJointInterface interface.
+//      */
+//     DynamixelPositionController()
+//     :     controller_interface::MultiInterfaceController<hardware_interface::PositionJointInterface, mh5_hardware::DynamixelJointControlInterface> (true)
+//     // position_controllers::JointGroupPositionController(), DynamixelJointController()
+//     {}
     
-    bool init(hardware_interface::RobotHW* robot_hw, ros::NodeHandle& root_nh, ros::NodeHandle& controller_nh);
+//     bool init(hardware_interface::RobotHW* robot_hw, ros::NodeHandle& root_nh, ros::NodeHandle& controller_nh);
 
-    void starting(const ros::Time& /*time*/);
+//     void starting(const ros::Time& /*time*/);
 
-    void stopping(const ros::Time& /*time*/);
+//     void stopping(const ros::Time& /*time*/);
 
-    void update(const ros::Time& /*time*/, const ros::Duration& /*period*/);
+//     void update(const ros::Time& /*time*/, const ros::Duration& /*period*/);
 
-    // bool initRequest(hardware_interface::RobotHW* robot_hw,
-    //                 ros::NodeHandle&             root_nh,
-    //                 ros::NodeHandle&             controller_nh,
-    //                 ClaimedResources&            claimed_resources) override;
+//     // bool initRequest(hardware_interface::RobotHW* robot_hw,
+//     //                 ros::NodeHandle&             root_nh,
+//     //                 ros::NodeHandle&             controller_nh,
+//     //                 ClaimedResources&            claimed_resources) override;
 
-private:
+// private:
 
-    position_controllers::JointGroupPositionController*     pos_controller_;
-    mh5_controllers::DynamixelJointController*              ctrl_controller_;
+//     position_controllers::JointGroupPositionController*     pos_controller_;
+//     mh5_controllers::DynamixelJointController*              ctrl_controller_;
 
-};
+// };
 
 } // namespace
