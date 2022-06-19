@@ -236,13 +236,20 @@ void DynamixelPositionController::update(const ros::Time& /*time*/, const ros::D
 void DynamixelPositionController::starting(const ros::Time& /*time*/)
 {
     ROS_INFO("[%s] Starting services...", nn_.c_str());
+
     position_sub_ = nh_.subscribe<trajectory_msgs::JointTrajectoryPoint>("command", 5, &DynamixelPositionController::commandCB, this);
     torque_srv_ = nh_.advertiseService("torque", &DynamixelPositionController::torqueCB, this);
     reboot_srv_ = nh_.advertiseService("reboot", &DynamixelPositionController::rebootCB, this);
 
+    // before activating the joint we need to store the current
+    // position in the RT buffer, otherwise they will jump to 0
+    // as the `update` method will retrieve an empty command
     ROS_INFO("[%s] Activating joints...", nn_.c_str());
     for (auto & joint : joints_) {
-         joint.second.setActive(true);
+        joint.second.setCommandPosition(joint.second.getPosition());
+        joint.second.setCommandVelocity(joint.second.getVelocity());
+        joint.second.setCommandAcceleration(joint.second.getVelocity()/4.0);
+        joint.second.setActive(true);
     }
 }
 
