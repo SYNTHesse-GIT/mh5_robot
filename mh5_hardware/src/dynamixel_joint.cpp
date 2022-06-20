@@ -102,11 +102,11 @@ void Joint::initRegisters()
         writeRegister(10, 1, 0, TRIES);  // direct; velocity profile
 
     // PID and FF
-    writeRegister(80, 2, 4000, TRIES);      // Position D Gain
-    writeRegister(82, 2, 0, TRIES);         // Position I Gain
-    writeRegister(84, 2, 200, TRIES);       // Position P Gain
-    writeRegister(88, 2, 0, TRIES);         // FF 2nd Gain
-    writeRegister(90, 2, 0, TRIES);         // FF 1st Gain
+    // writeRegister(80, 2, 4000, TRIES);      // Position D Gain
+    // writeRegister(82, 2, 0, TRIES);         // Position I Gain
+    // writeRegister(84, 2, 200, TRIES);       // Position P Gain
+    // writeRegister(88, 2, 0, TRIES);         // FF 2nd Gain
+    // writeRegister(90, 2, 0, TRIES);         // FF 1st Gain
     // INDIRECT REGISTERS
     // writeRegister(168, 2, 64, TRIES);        // torque status (64)
     // writeRegister(170, 2, 70, TRIES);       // HW error (70)

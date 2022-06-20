@@ -230,13 +230,17 @@ public:
      * as the harware expect the duration in ms. The full formula for the value
      * is:
      * 
-     *      result = abs((position_command_ - position_state_) / velocity_command_) * 1000
+     *      result = abs(velocity_command_)[rad/s] * 2pi / 60 / 0.229
      * 
      * @return uint32_t a value suitable for writing to the hardware profile velocity
      * for the desired position in velocity_command_ expressed in radians/s.
      */
-    // uint32_t getVelocityProfileFromCommand() { return abs((position_command_ - position_state_) / velocity_command_) * 1000; }
-    uint32_t getVelocityProfileFromCommand() { return 0; }
+    // [rad/s] * 60 / 2pi -> [rev/min] /0.229 -> [raw]
+    uint32_t getVelocityProfileFromCommand() { return abs(velocity_command_) * 0.45729150707275; }
+
+
+    uint32_t getAccelerationProfileFromCOmmand() { return abs(acceleration_command_) * 0.45729150707275;}
+
 
     /**
      * @brief Returns the handle to the joint position interface object for this joint

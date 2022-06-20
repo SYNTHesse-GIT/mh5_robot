@@ -191,7 +191,7 @@ bool PVWriter::beforeCommunication(std::vector<Joint *> joints)
         {
             int32_t p = joint->getRawPositionFromCommand();
             uint32_t vp = joint->getVelocityProfileFromCommand();
-            uint32_t ap = 0; //   vp / 4;
+            uint32_t ap = joint->getAccelerationProfileFromCOmmand();
             // platform-independent handling of byte order
             // acceleration; register 108
             command[0] = DXL_LOBYTE(DXL_LOWORD(ap));

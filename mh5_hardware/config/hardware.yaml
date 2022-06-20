@@ -20,6 +20,27 @@ dynamixel_inits:
     - init_indirect_volt_h
     - init_indirect_temp
 
+  init_pid_low:
+    - init_pid_low_p
+    - init_pid_low_i
+    - init_pid_low_d
+    - init_pid_low_ff2
+    - init_pid_low_ff1
+
+  init_pid_med:
+    - init_pid_med_p
+    - init_pid_med_i
+    - init_pid_med_d
+    - init_pid_med_ff2
+    - init_pid_med_ff1
+
+  init_pid_high:
+    - init_pid_high_p
+    - init_pid_high_i
+    - init_pid_high_d
+    - init_pid_high_ff2
+    - init_pid_high_ff1
+
   init_return_delay: [9, 1, 0]
   init_operating_mode: [11, 1, 3]
   init_temp_limit: [31, 1, 75]
@@ -33,6 +54,25 @@ dynamixel_inits:
   init_indirect_volt_l: [172, 2, 144]
   init_indirect_volt_h: [174, 2, 145]
   init_indirect_temp: [176, 2, 146]
+
+  init_pid_low_p: [84, 2, 640]
+  init_pid_low_i: [82, 2, 0]
+  init_pid_low_d: [80, 2, 4000]
+  init_pid_low_ff2: [88, 2, 0]
+  init_pid_low_ff1: [90, 2, 0]
+
+  init_pid_med_p: [84, 2, 2560]
+  init_pid_med_i: [82, 2, 0]
+  init_pid_med_d: [80, 2, 4000]
+  init_pid_med_ff2: [88, 2, 0]
+  init_pid_med_ff1: [90, 2, 0]
+
+  init_pid_high_p: [84, 2, 2000]
+  init_pid_high_i: [82, 2, 0]
+  init_pid_high_d: [80, 2, 4000]
+  init_pid_high_ff2: [88, 2, 0]
+  init_pid_high_ff1: [90, 2, 0]
+
 
 hw_upper_body:
   type: mh5_hardware/MH5DynamixelBus
@@ -59,38 +99,38 @@ hw_upper_body:
   head_p:
     id: 51
     inverse: true
-    inits: [init_common, init_indirect]
+    inits: [init_common, init_indirect, init_pid_low]
   head_y:
     id: 52
-    inits: [init_common, init_indirect]
+    inits: [init_common, init_indirect, init_pid_low]
   l_sho_p:
     id: 34
     inverse: true
-    inits: [init_common, init_indirect]
+    inits: [init_common, init_indirect, init_pid_low]
   l_sho_r:
     id: 33
     inverse: true
-    inits: [init_common, init_indirect]
+    inits: [init_common, init_indirect, init_pid_low]
   l_elb_y:
     id: 32
     inverse: true
-    inits: [init_common, init_indirect]
+    inits: [init_common, init_indirect, init_pid_low]
   l_elb_p:
     id: 31
-    inits: [init_common, init_indirect]
+    inits: [init_common, init_indirect, init_pid_low]
   r_sho_p:
     id: 44
-    inits: [init_common, init_indirect]
+    inits: [init_common, init_indirect, init_pid_low]
   r_sho_r:
     id: 43
-    inits: [init_common, init_indirect]
+    inits: [init_common, init_indirect, init_pid_low]
   r_elb_y:
     id: 42
-    inits: [init_common, init_indirect]
+    inits: [init_common, init_indirect, init_pid_low]
   r_elb_p:
     id: 41
     inverse: true
-    inits: [init_common, init_indirect]
+    inits: [init_common, init_indirect, init_pid_low]
 
 hw_lower_body:
   type: mh5_hardware/MH5DynamixelBus
@@ -122,50 +162,50 @@ hw_lower_body:
   l_hip_r:
     id: 16
     inverse: true
-    inits: [init_common, init_indirect]
+    inits: [init_common, init_indirect, init_pid_high]
   l_hip_p:
     id: 15
     inverse: true
-    inits: [init_common, init_indirect]
+    inits: [init_common, init_indirect, init_pid_high]
   l_kne_p:
     id: 14
     inverse: true
     offset: 1.570796326794897
-    inits: [init_common, init_indirect]
+    inits: [init_common, init_indirect, init_pid_high]
   l_kne_y:
     id: 13
     inverse: true
-    inits: [init_common, init_indirect]
+    inits: [init_common, init_indirect, init_pid_high]
   l_ank_p:
     id: 12
     inverse: true
-    inits: [init_common, init_indirect]
+    inits: [init_common, init_indirect, init_pid_high]
   l_ank_r:
     id: 11
-    inits: [init_common, init_indirect]
+    inits: [init_common, init_indirect, init_pid_high]
   r_hip_r:
     id: 26
-    inits: [init_common, init_indirect]
+    inits: [init_common, init_indirect, init_pid_high]
   r_hip_p:
     id: 25
     inverse: true
-    inits: [init_common, init_indirect]
+    inits: [init_common, init_indirect, init_pid_high]
   r_kne_p:
     id: 24
     inverse: true
     offset: 1.570796326794897
-    inits: [init_common, init_indirect]
+    inits: [init_common, init_indirect, init_pid_high]
   r_kne_y:
     id: 23
-    inits: [init_common, init_indirect]
+    inits: [init_common, init_indirect, init_pid_high]
   r_ank_p:
     id: 22
     inverse: true
-    inits: [init_common, init_indirect]
+    inits: [init_common, init_indirect, init_pid_high]
   r_ank_r:
     id: 21
     inverse: true
-    inits: [init_common, init_indirect]
+    inits: [init_common, init_indirect, init_pid_high]
   l_foot:
     id: 19
   r_foot:
