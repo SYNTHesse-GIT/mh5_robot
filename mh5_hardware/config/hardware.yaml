@@ -67,7 +67,7 @@ dynamixel_inits:
   init_pid_med_ff2: [88, 2, 0]
   init_pid_med_ff1: [90, 2, 0]
 
-  init_pid_high_p: [84, 2, 2000]
+  init_pid_high_p: [84, 2, 4000]
   init_pid_high_i: [82, 2, 0]
   init_pid_high_d: [80, 2, 4000]
   init_pid_high_ff2: [88, 2, 0]
@@ -162,49 +162,61 @@ hw_lower_body:
   l_hip_r:
     id: 16
     inverse: true
+    profile: 1
     inits: [init_common, init_indirect, init_pid_high]
   l_hip_p:
     id: 15
     inverse: true
+    profile: 1
     inits: [init_common, init_indirect, init_pid_high]
   l_kne_p:
     id: 14
     inverse: true
+    profile: 1
     offset: 1.570796326794897
     inits: [init_common, init_indirect, init_pid_high]
   l_kne_y:
     id: 13
     inverse: true
+    profile: 1
     inits: [init_common, init_indirect, init_pid_high]
   l_ank_p:
     id: 12
     inverse: true
+    profile: 1
     inits: [init_common, init_indirect, init_pid_high]
   l_ank_r:
     id: 11
+    profile: 1
     inits: [init_common, init_indirect, init_pid_high]
   r_hip_r:
     id: 26
+    profile: 1
     inits: [init_common, init_indirect, init_pid_high]
   r_hip_p:
     id: 25
     inverse: true
+    profile: 1
     inits: [init_common, init_indirect, init_pid_high]
   r_kne_p:
     id: 24
     inverse: true
+    profile: 1
     offset: 1.570796326794897
     inits: [init_common, init_indirect, init_pid_high]
   r_kne_y:
     id: 23
+    profile: 1
     inits: [init_common, init_indirect, init_pid_high]
   r_ank_p:
     id: 22
     inverse: true
+    profile: 1
     inits: [init_common, init_indirect, init_pid_high]
   r_ank_r:
     id: 21
     inverse: true
+    profile: 1
     inits: [init_common, init_indirect, init_pid_high]
   l_foot:
     id: 19

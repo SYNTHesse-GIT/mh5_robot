@@ -236,10 +236,27 @@ public:
      * for the desired position in velocity_command_ expressed in radians/s.
      */
     // [rad/s] * 60 / 2pi -> [rev/min] /0.229 -> [raw]
-    uint32_t getVelocityProfileFromCommand() { return abs(velocity_command_) * 0.45729150707275; }
+    uint32_t getVelocityProfileFromCommand() { 
+        if (profile_ == 0) {
+            // velocity profile; velocity_command_ represents actual angular velocity
+            return abs(velocity_command_) * 0.45729150707275;
+        }
+        if (profile_ == 1) {
+            // time profile; velocity_command_ represents the duration in seconds
+            return abs(velocity_command_) * 1000;
+        }
+    }
 
-
-    uint32_t getAccelerationProfileFromCOmmand() { return abs(acceleration_command_) * 0.45729150707275;}
+    uint32_t getAccelerationProfileFromCOmmand() { 
+        if (profile_ == 0) {
+             // velocity profile;acceleration_command_ represents actual angular acceleration
+            return abs(acceleration_command_) * 0.45729150707275;
+        }
+        if (profile_ == 1) {
+            // time profile; acceleration_command_ represents the duration in seconds
+            return abs(acceleration_command_) * 1000;
+        }
+    }
 
 
     /**
@@ -282,6 +299,7 @@ protected:
     // servo registers
     bool         inverse_;            /// @brief Servo uses inverse rotation
     double       offset_;             /// @brief Offest for servo from 0 position (center) in radians
+    int          profile_;            /// @brief Profile mode (velocity or time see Drive Mode register 10)
     double       position_state_;     /// @brief Current position in radians
     double       velocity_state_;     /// @brief Current velocity in radians/s
     double       effort_state_;       /// @brief Current effort in Nm
