@@ -241,7 +241,7 @@ public:
             // velocity profile; velocity_command_ represents actual angular velocity
             return abs(velocity_command_) * 0.45729150707275;
         }
-        if (profile_ == 1) {
+        else { // (profile_ == 1)
             // time profile; velocity_command_ represents the duration in seconds
             return abs(velocity_command_) * 1000;
         }
@@ -252,7 +252,7 @@ public:
              // velocity profile;acceleration_command_ represents actual angular acceleration
             return abs(acceleration_command_) * 0.45729150707275;
         }
-        if (profile_ == 1) {
+        else { //(profile_ == 1)
             // time profile; acceleration_command_ represents the duration in seconds
             return abs(acceleration_command_) * 1000;
         }

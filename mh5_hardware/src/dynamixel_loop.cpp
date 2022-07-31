@@ -236,11 +236,11 @@ bool TWriter::Communicate(std::vector<Joint *> joints)
                 bool res = joint->reboot(1);
                 incPackets();
                 if (res) {
-                    ROS_INFO("joint %s [%d] rebooted", joint->name().c_str(), joint->id());
+                    ROS_INFO("[TWriter] joint %s [%d] rebooted", joint->name().c_str(), joint->id());
                     break;
                 }
                 else {
-                    ROS_ERROR("joint %s [%d] failed to reboot", joint->name().c_str(), joint->id());
+                    ROS_ERROR("[TWriter] joint %s [%d] failed to reboot", joint->name().c_str(), joint->id());
                     incErrors();
                 }
             }
@@ -254,11 +254,11 @@ bool TWriter::Communicate(std::vector<Joint *> joints)
                 bool res = joint->changeTorque(joint->getTorqueCommand());
                 incPackets();
                 if (res) {
-                    ROS_INFO("joint %s [%d] torque set to %d", joint->name().c_str(), joint->id(), joint->getTorqueCommand());
+                    ROS_INFO("[TWriter] joint %s [%d] torque set to %d", joint->name().c_str(), joint->id(), joint->getTorqueCommand());
                     break;
                 }
                 else {
-                    ROS_ERROR("joint %s [%d] failed to change torque to %d", joint->name().c_str(), joint->id(), joint->getTorqueCommand());
+                    ROS_ERROR("[TWriter] joint %s [%d] failed to change torque to %d", joint->name().c_str(), joint->id(), joint->getTorqueCommand());
                     incErrors();
                 }
             }
