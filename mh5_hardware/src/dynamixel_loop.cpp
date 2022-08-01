@@ -145,7 +145,7 @@ bool StatusReader::afterCommunication(std::vector<Joint *> joints)
         if (!dxl_getdata_result)
             ROS_DEBUG("[%s] SyncRead getting HW error for ID %d failed", name, id);
         else {
-            int hwerr = (bool)getData(id, 225, 1);
+            int hwerr = (int)getData(id, 225, 1);
             joint->setHWEror(hwerr);
         }
         //voltage
