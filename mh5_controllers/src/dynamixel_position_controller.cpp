@@ -165,6 +165,7 @@ void DynamixelPositionController::update(const ros::Time& /*time*/, const ros::D
     //
     // Handle Position command messages
     //
+
     trajectory_msgs::JointTrajectoryPoint &   pos_cmd = *position_commands_buffer_.readFromRT();
 
     for (int i=0; i < pos_cmd.positions.size(); i++) {
@@ -240,6 +241,22 @@ void DynamixelPositionController::starting(const ros::Time& /*time*/)
     position_sub_ = nh_.subscribe<trajectory_msgs::JointTrajectoryPoint>("command", 5, &DynamixelPositionController::commandCB, this);
     torque_srv_ = nh_.advertiseService("torque", &DynamixelPositionController::torqueCB, this);
     reboot_srv_ = nh_.advertiseService("reboot", &DynamixelPositionController::rebootCB, this);
+
+    // initialize the RT buffer with current positions
+    // if we don't do this the last command position sent before stopping services
+    // will be used
+    // if the robot has been positioned in another way (it is compliant) the
+    // starting of the service will produce a sudden change in position to this
+    // last position
+    // see also https://github.com/ros-controls/ros_controllers/pull/504
+    auto current = trajectory_msgs::JointTrajectoryPoint();
+    current.positions.resize(joints_.size());
+    current.velocities.resize(joints_.size());
+    current.accelerations.resize(joints_.size());
+    for (int i=0; i < joints_.size(); i++) {
+        current.positions[i] = joints_[joint_names_[i]].getPosition();
+    }
+    position_commands_buffer_.initRT(current);
 
     // before activating the joint we need to store the current
     // position in the RT buffer, otherwise they will jump to 0
