@@ -65,6 +65,20 @@ bool Joint::isActive(bool refresh)
 
 bool Joint::changeTorque(bool new_state)
 {
+    if (new_state) {
+        // for torque activation make sure that the target position is the same
+        // as the current position otherwise we risk a very sudden move of the
+        // servo to a previous saved taget position
+        long curr_pos;
+        if (!readRegister(132, 4, curr_pos, TRIES)) {
+            ROS_ERROR("[%s] failed to read current position for %s [%d]", nss_, name_.c_str(), id_);
+            return false;
+        }
+        if (!writeRegister(116, 4, curr_pos, TRIES)) {
+            ROS_ERROR("[%s] failed to seed target position for %s [%d]", nss_, name_.c_str(), id_);
+            return false;
+        }
+    }
     if (writeRegister(64, 1, (int)new_state, TRIES)) {
         active_state_ = new_state;
         return true;
